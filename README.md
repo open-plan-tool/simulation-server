@@ -1,5 +1,5 @@
-# WAM_server_API_template
-Template repository for creating API server to dispatch simulation tasks to a queue of workers.
+# mvs_eland_api
+Creates API server to dispatch mvs simulation tasks to a queue of workers.
 The API typically recieves a post request with a json input file, sends this file to a parser which
 initiate a long simulation (like [oemof](https://github.com/oemof/oemof)). Once the simulation
  is done a json response is sent back. The json results can also be retrieved with the task id.
@@ -24,28 +24,12 @@ Move to `task_queue` and run `. setup_redis.sh` to start the celery queue with r
 
 ### Using [RabbitMQ](https://www.rabbitmq.com/getstarted.html)
 
-
-### Using [flask](https://fastapi.tiangolo.com/)
-
-In another terminal go the the root of the repo and run `python flask_run.py`
-
-Now the flask app is available at `127.0.0.1:5001`
-
 ### Using [fastapi](https://fastapi.tiangolo.com/)
 
 In another terminal go the the root of the repo and run `. fastapi_run.sh`
 
-Now the flask app is available at `127.0.0.1:5001`
+Now the fastapi app is available at `127.0.0.1:5001`
 
-While docker runs :
-https://vsupalov.com/rebuilding-docker-image-development/
-
-RabbitMQ:
-https://www.rabbitmq.com/getstarted.html
-
-https://riptutorial.com/flask/example/5831/return-a-json-response-from-flask-api
-
-https://docs.celeryproject.org/en/3.1/getting-started/first-steps-with-celery.html#application
 
 ## Docs
 
