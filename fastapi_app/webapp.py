@@ -65,11 +65,20 @@ def simulate_uploaded_json_files(request: Request, json_file: UploadFile = File(
     json_content = jsonable_encoder(json_file.file.read())
     return run_simulation(request, json_dict=json_content)
 
+
+@app.post("/run_simulation")
+def run_simulation(request: Request, json_dict=None) -> Response:
     """Send a simulation task to a celery worker"""
-    input_json = simulation_output = {
-        "name": "dummy_json_input",
-        "secondary_dict": {"val1": 2, "val2": [5, 6, 7, 8]},
-    }
+
+    if json_dict is None:
+        input_json = {
+            "name": "dummy_json_input",
+            "secondary_dict": {"val1": 2, "val2": [5, 6, 7, 8]},
+        }
+    else:
+        input_json = json_dict
+
+    # send the task to celery
     task = celery.send_task("tasks.run_simulation", args=[input_json], kwargs={})
 
     return templates.TemplateResponse(
