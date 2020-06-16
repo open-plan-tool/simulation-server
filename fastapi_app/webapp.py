@@ -1,5 +1,7 @@
 import os
-from fastapi import FastAPI, Request, Response
+import json
+from typing import List
+from fastapi import FastAPI, Request, Response, File, UploadFile
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -43,8 +45,26 @@ def index(request: Request) -> Response:
     return templates.TemplateResponse("index.html", {"request": request})
 
 
-@app.get("/run_simulation")
-def run_simulation(request: Request) -> Response:
+@app.post("/sendjson/")
+async def simulate_json_variable(request: Request):
+    """Receive mvs simulation parameter in json post request and send it to simulator"""
+    input_json = await request.json()
+
+    # send the task to celery
+    task = celery.send_task("tasks.run_simulation", args=[json.dumps(input_json)], kwargs={})
+
+    return check_task(task.id)
+
+
+@app.post("/uploadjson/")
+def simulate_uploaded_json_files(request: Request, json_file: UploadFile = File(...)):
+    """Receive mvs simulation parameter in json post request and send it to simulator
+    the value of `name` property of the input html tag should be `json_file` as the second
+    argument of this function
+    """
+    json_content = jsonable_encoder(json_file.file.read())
+    return run_simulation(request, json_dict=json_content)
+
     """Send a simulation task to a celery worker"""
     input_json = simulation_output = {
         "name": "dummy_json_input",
