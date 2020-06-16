@@ -8,16 +8,22 @@ ENV HOST 0.0.0.0
 ENV PORT 5001
 ENV DEBUG true
 
-COPY . /fastapi_app
-WORKDIR /fastapi_app
+COPY requirements.txt /tmp/
 
 # install requirements
 RUN python -m pip install --upgrade pip
-RUN pip install -r requirements.txt
+RUN pip install -r /tmp/requirements.txt
 RUN pip install gunicorn
+
+# avoid running as root user
+RUN useradd --create-home appuser
+USER appuser
+
+COPY . /fastapi_app
+WORKDIR /fastapi_app
 
 # expose the app port
 EXPOSE 5001
 
 # run the app server, the last argument match the app variable in the webapp.py file
-CMD ["uvicorn", "webapp:app", "--host", "0.0.0.0", "--port", "5001"]
+CMD ["uvicorn", "webapp:app", "--host", "0.0.0.0", "--port", "5001", "--proxy-headers"]
