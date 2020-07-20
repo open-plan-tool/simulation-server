@@ -89,8 +89,10 @@ def run_simulation(request: Request, json_dict=None) -> Response:
 @app.get("/check/{task_id}")
 async def check_task(task_id: str) -> JSONResponse:
     res = celery.AsyncResult(task_id)
+    task = {"id": task_id, "status": res.state, "results": None}
     if res.state == states.PENDING:
-        answer = res.state
+        task["status"] = res.state
     else:
-        answer = res.result
-    return JSONResponse(content=jsonable_encoder(answer))
+        task["status"] = "DONE"
+        task["results"] = res.result
+    return JSONResponse(content=jsonable_encoder(task))
