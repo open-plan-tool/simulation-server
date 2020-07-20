@@ -53,7 +53,9 @@ async def simulate_json_variable(request: Request):
     # send the task to celery
     task = celery.send_task("tasks.run_simulation", args=[json.dumps(input_json)], kwargs={})
 
-    return check_task(task.id)
+    queue_answer = await check_task(task.id)
+
+    return queue_answer
 
 
 @app.post("/uploadjson/")
