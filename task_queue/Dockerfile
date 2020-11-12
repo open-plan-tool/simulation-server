@@ -5,8 +5,10 @@ ENV CELERY_RESULT_BACKEND redis://redis:6379/0
 ENV C_FORCE_ROOT true
 
 RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y git
+    apt-get install -y git && \
+    apt-get install coinor-cbc -y && \
+    apt-get install graphviz -y
+
 
 COPY requirements.txt /tmp/
 

@@ -19,6 +19,6 @@ def run_simulation(simulation_input: dict,) -> dict:
     try:
         simulation_output = mvs_simulation(simulation_input)
     except Exception as e:
-        simulation_output = "{}".format(e)
+        simulation_output = "ERROR: {}".format(e)
 
     return json.dumps(simulation_output)

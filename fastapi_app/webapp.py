@@ -53,7 +53,9 @@ async def simulate_json_variable(request: Request):
     # send the task to celery
     task = celery.send_task("tasks.run_simulation", args=[json.dumps(input_json)], kwargs={})
 
-    return check_task(task.id)
+    queue_answer = await check_task(task.id)
+
+    return queue_answer
 
 
 @app.post("/uploadjson/")
@@ -89,8 +91,10 @@ def run_simulation(request: Request, json_dict=None) -> Response:
 @app.get("/check/{task_id}")
 async def check_task(task_id: str) -> JSONResponse:
     res = celery.AsyncResult(task_id)
+    task = {"id": task_id, "status": res.state, "results": None}
     if res.state == states.PENDING:
-        answer = res.state
+        task["status"] = res.state
     else:
-        answer = res.result
-    return JSONResponse(content=jsonable_encoder(answer))
+        task["status"] = "DONE"
+        task["results"] = res.result
+    return JSONResponse(content=jsonable_encoder(task))
