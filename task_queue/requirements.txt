@@ -2,14 +2,5 @@ celery
 flower
 redis
 python-multipart
-git+https://github.com/rl-institut/mvs_eland.git@patch/server-simulation
+multi-vector-simulator[report]
 matplotlib==3.1.1
-dash==1.11.0
-folium==0.10.1
-gitpython
-pdfkit==0.6.1
-reverse_geocoder==1.5.1
-staticmap
-pyppeteer
-pyomo==5.6.6
-pyutilib==5.7.1
