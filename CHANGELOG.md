@@ -22,7 +22,10 @@ Here is a template for new release sections
 ### Added
 - endpoints for mvs simulation (#1)
 - index page (#1)
+- mvs version number on index page (#6)
 ### Changed
+- Fixed async function (#5)
+- Convert json from EPA to MVS format (#6)
 
 ### Removed
 

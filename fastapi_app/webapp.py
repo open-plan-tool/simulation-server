@@ -7,6 +7,8 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from multi_vector_simulator import version as mvs_version
+
 try:
     from worker import celery
 except ModuleNotFoundError:
@@ -42,16 +44,19 @@ templates = Jinja2Templates(directory=os.path.join(SERVER_ROOT, "templates"))
 
 @app.get("/")
 def index(request: Request) -> Response:
-    return templates.TemplateResponse("index.html", {"request": request})
+
+    return templates.TemplateResponse(
+        "index.html", {"request": request, "mvs_version": mvs_version.version_num}
+    )
 
 
 @app.post("/sendjson/")
 async def simulate_json_variable(request: Request):
     """Receive mvs simulation parameter in json post request and send it to simulator"""
-    input_json = await request.json()
+    input_dict = await request.json()
 
     # send the task to celery
-    task = celery.send_task("tasks.run_simulation", args=[json.dumps(input_json)], kwargs={})
+    task = celery.send_task("tasks.run_simulation", args=[input_dict], kwargs={})
 
     queue_answer = await check_task(task.id)
 
@@ -65,23 +70,23 @@ def simulate_uploaded_json_files(request: Request, json_file: UploadFile = File(
     argument of this function
     """
     json_content = jsonable_encoder(json_file.file.read())
-    return run_simulation(request, json_dict=json_content)
+    return run_simulation(request, input_json=json_content)
 
 
 @app.post("/run_simulation")
-def run_simulation(request: Request, json_dict=None) -> Response:
+def run_simulation(request: Request, input_json=None) -> Response:
     """Send a simulation task to a celery worker"""
 
-    if json_dict is None:
-        input_json = {
+    if input_json is None:
+        input_dict = {
             "name": "dummy_json_input",
             "secondary_dict": {"val1": 2, "val2": [5, 6, 7, 8]},
         }
     else:
-        input_json = json_dict
+        input_dict = json.loads(input_json)
 
     # send the task to celery
-    task = celery.send_task("tasks.run_simulation", args=[input_json], kwargs={})
+    task = celery.send_task("tasks.run_simulation", args=[input_dict], kwargs={})
 
     return templates.TemplateResponse(
         "submitted_task.html", {"request": request, "task_id": task.id}

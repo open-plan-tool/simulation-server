@@ -6,9 +6,16 @@ initiate a long simulation (like [oemof](https://github.com/oemof/oemof)). Once 
 
 ## Get started
 
-Run `sudo docker-compose up -d --build` to run the task queue and the webapp simulaneously.
+Run `sudo docker-compose up -d --build` to run the task queue and the webapp simultaneously.
 
 Now the webapp is available at `127.0.0.1:5001`
+
+Use
+
+    sudo docker-compose logs web
+
+to get the logs messages of the `web` service of the docker-compose.yml file
+
 
 Run `sudo docker-compose down` to shut the services down.
 
@@ -16,9 +23,29 @@ Run `sudo docker-compose down` to shut the services down.
 
 ### Using [redis](https://redis.io/documentation)
 
-You have to start redis-server
-`service redis-server start`
-(to stop it use `service redis-server stop`)
+#### Ubuntu [install instructions](https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-redis-on-ubuntu-18-04)
+
+    sudo apt update
+    sudo apt install redis-server
+
+Then go in redis conf file
+
+    sudo nano /etc/redis/redis.conf
+
+and look for `supervised` parameter, set it to `systemd`
+
+    supervised systemd
+
+
+Then start the service with
+
+    sudo systemctl restart redis.service
+
+or
+
+    sudo service redis-server start
+
+(to stop it use `sudo service redis-server stop`)
 Move to `task_queue` and run `. setup_redis.sh` to start the celery queue with redis a message
  broker.
 

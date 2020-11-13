@@ -17,6 +17,7 @@
 <img src="{{ url_for('static', path='/logo-eland.jpg') }}">
 <div>
     <h2>Test simulation with custom json</h2>
+    <h3>Actual multi-vector-simulator's version: {{ mvs_version }}</h3>
     <p>Upload an mvs input json file and click on "Run simulation"</p>
     <form action="/uploadjson/" enctype="multipart/form-data" method="post">
     <!-- the value of `name` property should be used in the uploadjson endpoint function -->
@@ -29,7 +30,7 @@
     <h2>More information</h2>
     <ul>
         <li><a href="https://elandh2020.eu" target="_blank">More about E-LAND Horizon 2020's project</a></li>
-        <li><a href="https://github.com/rl-institut/mvs_eland" target="_blank">More MVS simulation</a></li>
+        <li><a href="https://github.com/rl-institut/multi-vector-simulator" target="_blank">More about MVS simulation</a></li>
         <li><a href="https://github.com/rl-institut/mvs_eland_api" target="_blank">More about this server structure</a></li>
     </ul>
 </div>
