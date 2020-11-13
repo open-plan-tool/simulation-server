@@ -2,5 +2,5 @@ celery
 flower
 redis
 python-multipart
-multi-vector-simulator[report]
+multi-vector-simulator
 matplotlib==3.1.1
