@@ -10,6 +10,13 @@ Run `sudo docker-compose up -d --build` to run the task queue and the webapp sim
 
 Now the webapp is available at `127.0.0.1:5001`
 
+Use
+
+    sudo docker-compose logs web
+
+to get the logs messages of the `web` service of the docker-compose.yml file
+
+
 Run `sudo docker-compose down` to shut the services down.
 
 ## Develop while services are running
