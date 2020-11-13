@@ -7,6 +7,8 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from multi_vector_simulator import version as mvs_version
+
 try:
     from worker import celery
 except ModuleNotFoundError:
@@ -42,7 +44,10 @@ templates = Jinja2Templates(directory=os.path.join(SERVER_ROOT, "templates"))
 
 @app.get("/")
 def index(request: Request) -> Response:
-    return templates.TemplateResponse("index.html", {"request": request})
+
+    return templates.TemplateResponse(
+        "index.html", {"request": request, "mvs_version": mvs_version.version_num}
+    )
 
 
 @app.post("/sendjson/")
