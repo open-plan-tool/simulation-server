@@ -20,6 +20,7 @@ def run_simulation(
     simulation_input: dict,
 ) -> dict:
 
+    dict_values = None
     try:
 
         dict_values = convert_epa_params_to_mvs(simulation_input)
@@ -28,6 +29,10 @@ def run_simulation(
 
     except Exception as e:
 
-        simulation_output = "ERROR: {}".format(traceback.format_exc())
+        simulation_output = dict(
+            ERROR="{}".format(traceback.format_exc()),
+            INPUT_JSON_EPA=simulation_input,
+            INPUT_JSON_MVS=dict_values,
+        )
 
     return json.dumps(simulation_output)

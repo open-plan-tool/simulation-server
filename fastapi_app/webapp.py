@@ -102,4 +102,7 @@ async def check_task(task_id: str) -> JSONResponse:
     else:
         task["status"] = "DONE"
         task["results"] = res.result
+    if "ERROR" in task["results"]:
+        task["status"] = "ERROR"
+        task["results"] = json.loads(res.result)
     return JSONResponse(content=jsonable_encoder(task))
