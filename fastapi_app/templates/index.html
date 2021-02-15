@@ -8,6 +8,12 @@
     />
     <meta name="description" content="MVS Eland simulation server" />
     <link rel="icon" href="{{ url_for('static', path='/favicon.ico') }}" />
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/foundation-sites@6.6.3/dist/css/foundation.min.css"
+        integrity="sha256-ogmFxjqiTMnZhxCqVmcqTvjfe1Y/ec4WaRj/aQPvn+I="
+        crossorigin="anonymous"
+    />
     <link href="{{ url_for('static', path='/style.css') }}" rel="stylesheet" />
     <title>MVS Eland SimServer</title>
 
@@ -24,6 +30,18 @@
     <input name="json_file" type="file" multiple>
     <input value="Run simulation" type="submit">
     </form>
+</div>
+
+
+<div>
+    <p class="callout alert">
+        This web interface is for the moment only meant to be used for Reiner Lemoine Institut's debugging purposes,
+        be aware that logs of the information you upload using this interface might be saved on the server
+        temporarily, although we delete log entries from time to time to save space on the server.
+        Do not upload information you don't want to see exposed! You can simulate with MVS locally instead
+        by deploying using <a href="https://github.com/rl-institut/mvs_eland_api" target="_blank">This docker app</a>
+    </p>
+
 </div>
 
 <div>

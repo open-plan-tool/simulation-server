@@ -23,6 +23,9 @@ Here is a template for new release sections
 - endpoints for mvs simulation (#1)
 - index page (#1)
 - mvs version number on index page (#6)
+- disclaimer about data safety on index page (#9)
+- input json is returned in case of EPA->MVS conversion or simulation error (#9)
+
 ### Changed
 - Fixed async function (#5)
 - Convert json from EPA to MVS format (#6)
