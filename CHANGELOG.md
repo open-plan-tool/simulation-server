@@ -25,6 +25,7 @@ Here is a template for new release sections
 - mvs version number on index page (#6)
 - disclaimer about data safety on index page (#9)
 - input json is returned in case of EPA->MVS conversion or simulation error (#9)
+- possibility to pin mvs version centrally in `.env` file (#12)
 
 ### Changed
 - Fixed async function (#5)

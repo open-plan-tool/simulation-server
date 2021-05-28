@@ -2,6 +2,9 @@ version: "3"
 services:
   web:
     build:
+      args:
+        # this should be in a .env file in the root of the repository
+        mvs_version: ${MVS_VERSION}
       # `context` should be a path to a directory containing a Dockerfile
       context: ./fastapi_app
       dockerfile: Dockerfile
@@ -15,6 +18,9 @@ services:
       - eland_network
   worker:
     build:
+      args:
+        # this should be in a .env file in the root of the repository
+        mvs_version: ${MVS_VERSION}
       # context should be the name of the folder which define the tasks
       context: task_queue
       dockerfile: Dockerfile
