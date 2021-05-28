@@ -20,6 +20,12 @@ RUN pip install -r /tmp/requirements.txt
 RUN pip install multi-vector-simulator==$mvs_version
 
 COPY . /queue
+
+# avoid running as root user
+RUN useradd --create-home appuser
+RUN chown -R appuser /queue
+USER appuser
+
 WORKDIR /queue
 
 ENTRYPOINT celery -A tasks worker --loglevel=info
