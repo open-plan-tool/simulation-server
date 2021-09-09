@@ -1,13 +1,24 @@
 import os
 import json
-from typing import List
+import io
 from fastapi import FastAPI, Request, Response, File, UploadFile
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import StreamingResponse
+
 
 from multi_vector_simulator import version as mvs_version
+
+from multi_vector_simulator.utils.constants_json_strings import (
+    SIMULATION_SETTINGS,
+    OUTPUT_LP_FILE,
+    VALUE,
+    UNIT,
+)
+
+
 
 try:
     from worker import celery
@@ -106,3 +117,32 @@ async def check_task(task_id: str) -> JSONResponse:
             task["status"] = "ERROR"
             task["results"] = json.loads(res.result)
     return JSONResponse(content=jsonable_encoder(task))
+
+
+@app.get("/get_lp_file/{task_id}")
+async def get_lp_file(task_id: str) -> Response:
+    res = celery.AsyncResult(task_id)
+    task = {"id": task_id, "status": res.state, "results": None}
+    if res.state == states.PENDING:
+        task["status"] = res.state
+    else:
+        task["status"] = "DONE"
+        task["results"] = json.loads(res.result)
+        if "ERROR" in task["results"]:
+            task["status"] = "ERROR"
+            task["results"] = json.loads(res.result)
+
+    if OUTPUT_LP_FILE in task["results"][SIMULATION_SETTINGS]:
+
+        stream = io.StringIO(
+            task["results"][SIMULATION_SETTINGS][OUTPUT_LP_FILE][VALUE]
+        )
+
+        response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
+        response.headers["Content-Disposition"] = "attachment; filename=lp_file.txt"
+
+    else:
+        response = Response(content="Sorry does not work")
+
+    return response
+
