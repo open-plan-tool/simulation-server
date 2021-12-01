@@ -16,7 +16,7 @@ COPY requirements.txt /tmp/
 
 RUN python -m pip install --upgrade pip
 RUN pip install -r /tmp/requirements.txt
-# override the multi-vector-simulator latest version
+# install multi-vector-simulator's version pinned in docker-compose.yml file
 RUN pip install multi-vector-simulator==$mvs_version
 
 COPY . /queue
