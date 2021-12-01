@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
-    <meta name="description" content="MVS Eland simulation server" />
+    <meta name="description" content="MVS simulation server" />
     <link rel="icon" href="{{ url_for('static', path='/favicon.ico') }}" />
     <link
         rel="stylesheet"
@@ -15,16 +15,15 @@
         crossorigin="anonymous"
     />
     <link href="{{ url_for('static', path='/style.css') }}" rel="stylesheet" />
-    <title>MVS Eland SimServer</title>
+    <title>MVS SimServer</title>
 
 </head>
 <body>
-<h1>Welcome to ELand's MVS simulation server! </h1>
-<img src="{{ url_for('static', path='/logo-eland.jpg') }}">
+<h1>Welcome to MVS simulation server! </h1>
 <div>
     <h2>Test simulation with custom json</h2>
     <h3>Actual multi-vector-simulator's version: {{ mvs_version }}</h3>
-    <p>Upload an mvs input json file and click on "Run simulation"</p>
+    <p>Upload a mvs input json file and click on "Run simulation"</p>
     <form action="/uploadjson/" enctype="multipart/form-data" method="post">
     <!-- the value of `name` property should be used in the uploadjson endpoint function -->
     <input name="json_file" type="file" multiple>
@@ -34,22 +33,9 @@
 
 
 <div>
-    <p class="callout alert">
-        This web interface is for the moment only meant to be used for Reiner Lemoine Institut's debugging purposes,
-        be aware that logs of the information you upload using this interface might be saved on the server
-        temporarily, although we delete log entries from time to time to save space on the server.
-        Do not upload information you don't want to see exposed! You can simulate with MVS locally instead
-        by deploying using <a href="https://github.com/rl-institut/mvs_eland_api" target="_blank">This docker app</a>
-    </p>
-
-</div>
-
-<div>
     <h2>More information</h2>
     <ul>
-        <li><a href="https://elandh2020.eu" target="_blank">More about E-LAND Horizon 2020's project</a></li>
         <li><a href="https://github.com/rl-institut/multi-vector-simulator" target="_blank">More about MVS simulation</a></li>
-        <li><a href="https://github.com/rl-institut/mvs_eland_api" target="_blank">More about this server structure</a></li>
     </ul>
 </div>
 {% block body %}{% endblock body%}

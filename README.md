@@ -1,8 +1,11 @@
-# mvs_eland_api
-Creates API server to dispatch mvs simulation tasks to a queue of workers.
-The API typically recieves a post request with a json input file, sends this file to a parser which
-initiate a long simulation (like [oemof](https://github.com/oemof/oemof)). Once the simulation
- is done a json response is sent back. The json results can also be retrieved with the task id.
+# simulation-server
+
+The open-plan-tool/gui sends simulation requests to a simulation server so that you can queue tasks and still use the app while the simulation to be done. The server can be running on your local computer, or you can set it up online. An online server hosted by Reiner Lemoine Institut is setup by default for open-plan-tool/gui
+
+
+The code in this repository creates the simulation server and a basic server API to dispatch [mvs](https://github.com/rl-institut/multi-vector-simulator) simulation tasks to a queue of workers.
+The API typically receives a post request with a json input file, sends this file to a parser which
+initiate an MVS simulation. Once the simulation is done, a json response is sent back. The json results can also be retrieved with the task id.
 
 ## Get started
 

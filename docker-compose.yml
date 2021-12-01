@@ -15,7 +15,7 @@ services:
       - redis
     networks:
 #      - caddy_network
-      - eland_network
+      - sim_network
   worker:
     build:
       args:
@@ -27,14 +27,14 @@ services:
     depends_on:
       - redis
     networks:
-    - eland_network
+    - sim_network
   redis:
     image: redis
     networks:
-    - eland_network
+    - sim_network
 
 networks:
 #  caddy_network:
 #    external:
 #      name: docker_caddy_network
-  eland_network:
+  sim_network:
