@@ -18,12 +18,15 @@ from multi_vector_simulator.utils.constants_json_strings import (
     UNIT,
 )
 
+MVS_DEV_VERSION = os.environ.get("MVS_DEV_VERSION", mvs_version.version_num)
+MVS_OPEN_PLAN_VERSION = os.environ.get("MVS_OPEN_PLAN_VERSION", mvs_version.version_num)
 
+MVS_SERVER_VERSIONS = {"dev": MVS_DEV_VERSION, "open_plan": MVS_OPEN_PLAN_VERSION}
 
 try:
-    from worker import celery
+    from worker import app as celery_app
 except ModuleNotFoundError:
-    from .worker import celery
+    from .worker import app as celery_app
 import celery.states as states
 
 app = FastAPI()
@@ -57,25 +60,42 @@ templates = Jinja2Templates(directory=os.path.join(SERVER_ROOT, "templates"))
 def index(request: Request) -> Response:
 
     return templates.TemplateResponse(
-        "index.html", {"request": request, "mvs_version": mvs_version.version_num}
+        "index.html",
+        {
+            "request": request,
+            "mvs_dev_version": MVS_DEV_VERSION,
+            "mvs_open_plan_version": MVS_OPEN_PLAN_VERSION,
+        },
     )
 
 
-@app.post("/sendjson/")
-async def simulate_json_variable(request: Request):
+async def simulate_json_variable(request: Request, queue: str = "dev"):
     """Receive mvs simulation parameter in json post request and send it to simulator"""
     input_dict = await request.json()
 
     # send the task to celery
-    task = celery.send_task("tasks.run_simulation", args=[input_dict], kwargs={})
-
+    task = celery_app.send_task(
+        f"{queue}.run_simulation", args=[input_dict], queue=queue, kwargs={}
+    )
     queue_answer = await check_task(task.id)
 
     return queue_answer
 
 
-@app.post("/uploadjson/")
-def simulate_uploaded_json_files(request: Request, json_file: UploadFile = File(...)):
+@app.post("/sendjson/")
+async def simulate_json_variable_dev(request: Request):
+    return await simulate_json_variable(request, queue="dev")
+
+
+@app.post("/sendjson/openplan")
+async def simulate_json_variable_open_plan(request: Request):
+    return await simulate_json_variable(request, queue="open_plan")
+
+
+@app.post("/uploadjson/dev")
+def simulate_uploaded_json_files_dev(
+    request: Request, json_file: UploadFile = File(...)
+):
     """Receive mvs simulation parameter in json post request and send it to simulator
     the value of `name` property of the input html tag should be `json_file` as the second
     argument of this function
@@ -84,8 +104,19 @@ def simulate_uploaded_json_files(request: Request, json_file: UploadFile = File(
     return run_simulation(request, input_json=json_content)
 
 
-@app.post("/run_simulation")
-def run_simulation(request: Request, input_json=None) -> Response:
+@app.post("/uploadjson/open_plan")
+def simulate_uploaded_json_files_open_plan(
+    request: Request, json_file: UploadFile = File(...)
+):
+    """Receive mvs simulation parameter in json post request and send it to simulator
+    the value of `name` property of the input html tag should be `json_file` as the second
+    argument of this function
+    """
+    json_content = jsonable_encoder(json_file.file.read())
+    return run_simulation_open_plan(request, input_json=json_content)
+
+
+def run_simulation(request: Request, input_json=None, queue="dev") -> Response:
     """Send a simulation task to a celery worker"""
 
     if input_json is None:
@@ -97,52 +128,88 @@ def run_simulation(request: Request, input_json=None) -> Response:
         input_dict = json.loads(input_json)
 
     # send the task to celery
-    task = celery.send_task("tasks.run_simulation", args=[input_dict], kwargs={})
+    task = celery_app.send_task(
+        f"{queue}.run_simulation", args=[input_dict], queue=queue, kwargs={}
+    )
 
     return templates.TemplateResponse(
         "submitted_task.html", {"request": request, "task_id": task.id}
     )
 
 
+@app.post("/run_simulation")
+def run_simulation_dev(request: Request, input_json=None) -> Response:
+    return run_simulation(request, input_json, queue="dev")
+
+
+@app.post("/run_simulation_open_plan")
+def run_simulation_open_plan(request: Request, input_json=None) -> Response:
+    return run_simulation(request, input_json, queue="open_plan")
+
+
 @app.get("/check/{task_id}")
 async def check_task(task_id: str) -> JSONResponse:
-    res = celery.AsyncResult(task_id)
-    task = {"id": task_id, "status": res.state, "results": None}
+    res = celery_app.AsyncResult(task_id)
+    task = {
+        "server_info": None,
+        "mvs_version": None,
+        "id": task_id,
+        "status": res.state,
+        "results": None,
+    }
     if res.state == states.PENDING:
         task["status"] = res.state
     else:
         task["status"] = "DONE"
-        task["results"] = res.result
+        results_as_dict = json.loads(res.result)
+        server_info = results_as_dict.pop("SERVER")
+        task["server_info"] = server_info
+        task["mvs_version"] = MVS_SERVER_VERSIONS.get(server_info, "unknown")
+        task["results"] = json.dumps(results_as_dict)
         if "ERROR" in task["results"]:
             task["status"] = "ERROR"
-            task["results"] = json.loads(res.result)
+            task["results"] = results_as_dict
+
     return JSONResponse(content=jsonable_encoder(task))
 
 
 @app.get("/get_lp_file/{task_id}")
 async def get_lp_file(task_id: str) -> Response:
-    res = celery.AsyncResult(task_id)
-    task = {"id": task_id, "status": res.state, "results": None}
+    res = celery_app.AsyncResult(task_id)
+    task = {
+        "server_info": None,
+        "mvs_version": mvs_version,
+        "id": task_id,
+        "status": res.state,
+        "results": None,
+    }
     if res.state == states.PENDING:
         task["status"] = res.state
+        response = JSONResponse(content=jsonable_encoder(task))
     else:
         task["status"] = "DONE"
-        task["results"] = json.loads(res.result)
+        results_as_dict = json.loads(res.result)
+        server_info = results_as_dict.pop("SERVER")
+        task["server_info"] = server_info
+        task["mvs_version"] = MVS_SERVER_VERSIONS.get(server_info, "unknown")
+        task["results"] = json.dumps(results_as_dict)
         if "ERROR" in task["results"]:
             task["status"] = "ERROR"
-            task["results"] = json.loads(res.result)
+            task["results"] = results_as_dict
 
-    if OUTPUT_LP_FILE in task["results"][SIMULATION_SETTINGS]:
+        if OUTPUT_LP_FILE in results_as_dict[SIMULATION_SETTINGS]:
 
-        stream = io.StringIO(
-            task["results"][SIMULATION_SETTINGS][OUTPUT_LP_FILE][VALUE]
-        )
+            stream = io.StringIO(
+                results_as_dict[SIMULATION_SETTINGS][OUTPUT_LP_FILE][VALUE]
+            )
 
-        response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
-        response.headers["Content-Disposition"] = "attachment; filename=lp_file.txt"
+            response = StreamingResponse(
+                iter([stream.getvalue()]), media_type="text/csv"
+            )
+            response.headers["Content-Disposition"] = "attachment; filename=lp_file.txt"
 
-    else:
-        response = Response(content="Sorry does not work")
+        else:
+            response = "There is no LP file output, did you check the LP file option when you started your simulation?"
 
     return response
 
