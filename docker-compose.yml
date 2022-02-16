@@ -1,10 +1,13 @@
 version: "3"
 services:
   web:
+    environment:
+      - MVS_DEV_VERSION=${MVS_DEV_VERSION}
+      - MVS_OPEN_PLAN_VERSION=${MVS_OPEN_PLAN_VERSION}
     build:
       args:
         # this should be in a .env file in the root of the repository
-        mvs_version: ${MVS_VERSION}
+        mvs_version: ${MVS_DEV_VERSION}
       # `context` should be a path to a directory containing a Dockerfile
       context: ./fastapi_app
       dockerfile: Dockerfile
@@ -16,18 +19,34 @@ services:
     networks:
 #      - caddy_network
       - sim_network
-  worker:
+  worker-dev:
+    environment:
+      - CELERY_TASK_NAME=dev
     build:
       args:
         # this should be in a .env file in the root of the repository
-        mvs_version: ${MVS_VERSION}
+        mvs_version: ${MVS_DEV_VERSION}
       # context should be the name of the folder which define the tasks
       context: task_queue
       dockerfile: Dockerfile
     depends_on:
       - redis
     networks:
-    - sim_network
+      - sim_network
+  worker-open-plan:
+    environment:
+      - CELERY_TASK_NAME=open_plan
+    build:
+      args:
+        # this should be in a .env file in the root of the repository
+        mvs_version: ${MVS_OPEN_PLAN_VERSION}
+      # context should be the name of the folder which define the tasks
+      context: task_queue
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+    networks:
+      - sim_network
   redis:
     image: redis
     networks:
