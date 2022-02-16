@@ -22,12 +22,22 @@
 <h1>Welcome to MVS simulation server! </h1>
 <div>
     <h2>Test simulation with custom json</h2>
-    <h3>Actual multi-vector-simulator's version: {{ mvs_version }}</h3>
+    <h3>Actual multi-vector-simulator's version for development: {{ mvs_dev_version }}</h3>
+
     <p>Upload a mvs input json file and click on "Run simulation"</p>
-    <form action="/uploadjson/" enctype="multipart/form-data" method="post">
+    <form action="/uploadjson/dev" enctype="multipart/form-data" method="post">
     <!-- the value of `name` property should be used in the uploadjson endpoint function -->
     <input name="json_file" type="file" multiple>
     <input value="Run simulation" type="submit">
+    </form>
+
+    <h3>Actual multi-vector-simulator's version for open_plan: {{ mvs_open_plan_version }}</h3>
+
+    <p>Upload a mvs input json file and click on "Run simulation"</p>
+    <form action="/uploadjson/open_plan" enctype="multipart/form-data" method="post">
+        <!-- the value of `name` property should be used in the uploadjson endpoint function -->
+        <input name="json_file" type="file" multiple>
+        <input value="Run simulation" type="submit">
     </form>
 </div>
 
