@@ -175,28 +175,41 @@ async def check_task(task_id: str) -> JSONResponse:
 
 @app.get("/get_lp_file/{task_id}")
 async def get_lp_file(task_id: str) -> Response:
-    res = celery.AsyncResult(task_id)
-    task = {"id": task_id, "status": res.state, "results": None}
+    res = celery_app.AsyncResult(task_id)
+    task = {
+        "server_info": None,
+        "mvs_version": mvs_version,
+        "id": task_id,
+        "status": res.state,
+        "results": None,
+    }
     if res.state == states.PENDING:
         task["status"] = res.state
+        response = JSONResponse(content=jsonable_encoder(task))
     else:
         task["status"] = "DONE"
-        task["results"] = json.loads(res.result)
+        results_as_dict = json.loads(res.result)
+        server_info = results_as_dict.pop("SERVER")
+        task["server_info"] = server_info
+        task["mvs_version"] = MVS_SERVER_VERSIONS.get(server_info, "unknown")
+        task["results"] = json.dumps(results_as_dict)
         if "ERROR" in task["results"]:
             task["status"] = "ERROR"
-            task["results"] = json.loads(res.result)
+            task["results"] = results_as_dict
 
-    if OUTPUT_LP_FILE in task["results"][SIMULATION_SETTINGS]:
+        if OUTPUT_LP_FILE in results_as_dict[SIMULATION_SETTINGS]:
 
-        stream = io.StringIO(
-            task["results"][SIMULATION_SETTINGS][OUTPUT_LP_FILE][VALUE]
-        )
+            stream = io.StringIO(
+                results_as_dict[SIMULATION_SETTINGS][OUTPUT_LP_FILE][VALUE]
+            )
 
-        response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
-        response.headers["Content-Disposition"] = "attachment; filename=lp_file.txt"
+            response = StreamingResponse(
+                iter([stream.getvalue()]), media_type="text/csv"
+            )
+            response.headers["Content-Disposition"] = "attachment; filename=lp_file.txt"
 
-    else:
-        response = Response(content="Sorry does not work")
+        else:
+            response = "There is no LP file output, did you check the LP file option when you started your simulation?"
 
     return response
 
