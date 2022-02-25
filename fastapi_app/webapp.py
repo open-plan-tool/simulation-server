@@ -202,9 +202,7 @@ async def check_task(task_id: str) -> JSONResponse:
         "status": res.state,
         "results": None,
     }
-    if res.state == states.PENDING:
-        task["status"] = res.state
-    else:
+    if res.state != states.PENDING:
         task["status"] = "DONE"
         results_as_dict = json.loads(res.result)
         server_info = results_as_dict.pop("SERVER")
@@ -214,6 +212,65 @@ async def check_task(task_id: str) -> JSONResponse:
         if "ERROR" in task["results"]:
             task["status"] = "ERROR"
             task["results"] = results_as_dict
+
+    return JSONResponse(content=jsonable_encoder(task))
+
+
+@app.get("/check-sensitivity-analysis/{task_id}")
+async def check_sensitivity_analysis(task_id: str) -> JSONResponse:
+    sensitivity_analysis = celery_app.AsyncResult(task_id)
+
+    task = {
+        "server_info": None,
+        "mvs_version": None,
+        "id": task_id,
+        "status": sensitivity_analysis.state,
+        "results": dict(reference_simulation_id=None, sensitivity_analysis_steps=None),
+    }
+    if sensitivity_analysis.state != states.PENDING:
+        sa_results = sensitivity_analysis.result
+        if "ERROR" in sa_results:
+            task["status"] = "ERROR"
+            task["results"] = sa_results
+        else:
+            # fetch results of each sensitivity analysis steps
+            sa_step_ids = sa_results["sensitivity_analysis_ids"]
+
+            if "ERROR" in sa_step_ids:
+                task["status"] = "ERROR"
+                task["results"]["sensitivity_analysis_ids"] = sa_step_ids
+                answers = None
+            else:
+                server_info = None
+                answers = []
+                for sa_step_id in sa_step_ids:
+                    sa_step = celery_app.AsyncResult(sa_step_id)
+                    if sa_step.ready():
+                        results_as_dict = json.loads(sa_step.result)
+                        server_info = results_as_dict.pop("SERVER")
+                        if "ERROR" in results_as_dict:
+
+                            temp = copy.deepcopy(results_as_dict)
+                            temp.pop("step_idx")
+                            results_as_dict["output_values"] = temp
+                        answers.append(results_as_dict)
+                    else:
+                        task["status"] = states.PENDING
+                        answers = None
+                        break
+
+            if answers is not None:
+
+                task["status"] = "DONE"
+                task["server_info"] = server_info
+                task["mvs_version"] = MVS_SERVER_VERSIONS.get(server_info, "unknown")
+                task["results"]["sensitivity_analysis_steps"] = [
+                    d["output_values"]
+                    for d in sorted(answers, key=lambda item: item["step_idx"])
+                ]
+            # the "result" of the main simulation here is the mvs token leading to the simulations results
+            # that can be checked with url /check/{task_id}
+            task["results"]["reference_simulation_id"] = sa_results["ref_sim_id"]
 
     return JSONResponse(content=jsonable_encoder(task))
 
@@ -257,4 +314,3 @@ async def get_lp_file(task_id: str) -> Response:
             response = "There is no LP file output, did you check the LP file option when you started your simulation?"
 
     return response
-
