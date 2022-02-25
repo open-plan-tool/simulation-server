@@ -39,6 +39,15 @@
         <input name="json_file" type="file" multiple>
         <input value="Run simulation" type="submit">
     </form>
+
+    <p>Upload a mvs input json file, formated as epa and click on "Run sensitivity analysis"</p>
+    <form action="/uploadjson-sensitivity-analysis/open_plan" enctype="multipart/form-data" method="post">
+        <!-- the value of `name` property should be used in the uploadjson endpoint function -->
+        <input name="json_file" type="file" multiple>
+        <input value="Run sensitivity analysis" type="submit">
+    </form>
+
+
 </div>
 
 
