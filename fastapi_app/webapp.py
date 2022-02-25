@@ -1,3 +1,4 @@
+import copy
 import os
 import json
 import io
@@ -57,10 +58,10 @@ templates = Jinja2Templates(directory=os.path.join(SERVER_ROOT, "templates"))
 
 
 @app.get("/")
-def index(request: Request) -> Response:
+def index(request: Request, template: str = "index.html") -> Response:
 
     return templates.TemplateResponse(
-        "index.html",
+        template,
         {
             "request": request,
             "mvs_dev_version": MVS_DEV_VERSION,
@@ -92,6 +93,18 @@ async def simulate_json_variable_open_plan(request: Request):
     return await simulate_json_variable(request, queue="open_plan")
 
 
+@app.post("/sendjson/openplan/sensitivity-analysis")
+async def sensitivity_analysis_json_variable_open_plan(request: Request):
+
+    input_dict = await request.json()
+
+    sensitivity_analysis_id = run_sensitivity_analysis(
+        input_json=json.dumps(input_dict)
+    )
+
+    return await check_sensitivity_analysis(sensitivity_analysis_id)
+
+
 @app.post("/uploadjson/dev")
 def simulate_uploaded_json_files_dev(
     request: Request, json_file: UploadFile = File(...)
@@ -114,6 +127,38 @@ def simulate_uploaded_json_files_open_plan(
     """
     json_content = jsonable_encoder(json_file.file.read())
     return run_simulation_open_plan(request, input_json=json_content)
+
+
+@app.post("/uploadjson-sensitivity-analysis/open_plan")
+def sensitivity_analysis_uploaded_json_files_open_plan(
+    request: Request, json_file: UploadFile = File(...)
+) -> Response:
+    """Receive mvs sensitivity analysis parameter in json post request and send it to simulator
+    the value of `name` property of the input html tag should be `json_file` as the second
+    argument of this function
+    """
+    json_content = jsonable_encoder(json_file.file.read())
+
+    sensitivity_analysis_id = run_sensitivity_analysis(input_json=json_content)
+
+    return templates.TemplateResponse(
+        "submitted_sensitivity_analysis.html",
+        {"request": request, "task_id": sensitivity_analysis_id},
+    )
+
+
+def run_sensitivity_analysis(input_json=None, queue="open_plan"):
+    """Send a sensitivity analysis task to a celery worker"""
+
+    """Receive mvs simulation parameter in json post request and send it to simulator"""
+    input_dict = json.loads(input_json)
+
+    sensitivity_analysis = celery_app.send_task(
+        f"{queue}.run_sensitivity_analysis", args=[input_dict], queue=queue, kwargs={}
+    )
+    answer = sensitivity_analysis.id
+
+    return answer
 
 
 def run_simulation(request: Request, input_json=None, queue="dev") -> Response:
