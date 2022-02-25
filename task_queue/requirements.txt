@@ -2,3 +2,4 @@ celery
 flower
 redis
 python-multipart
+jsonschema
