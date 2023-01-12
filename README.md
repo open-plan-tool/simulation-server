@@ -22,6 +22,45 @@ to get the logs messages of the `web` service of the docker-compose.yml file
 
 Run `sudo docker-compose down` to shut the services down.
 
+## Using the simulation server with open_plan gui
+
+There are many possible configurations in which you can use the simulation server together with the [open_plan gui](https://github.com/open-plan-tool). 
+
+ - You can do a fully local deploy of both the GUI and server
+ - You can also deploy the server online and link your locally deployed GUI to it
+ - At last, you can deploy online both the server and the GUI
+
+### local deploy of the server
+
+Once you ran the docker-compose command from [Get started menu](#Get started) above,
+you should be able to visit http://127.0.0.1:5001 and see a page where you can upload json files to start a simulation. 
+The `MVS_HOST_API` environment variable in open-plan GUI should then be set as `MVS_HOST_API=http://127.0.0.1:5001` (see the [instructions to deploy open-plan GUI](https://github.com/open-plan-tool/gui#deploy-locally-using-and-using-our-open-plan-mvs-server) for more help).
+The open-plan GUI can be then deployed locally and will run simulations on your local simulation server :)
+
+### online deploy of the server
+
+You need first to have access to online services to host the server (eg. one of those listed in https://geekflare.com/docker-hosting-platforms/). 
+You might need to adapt the docker-compose.yml file to be able to access the docker container on a subdomain of your service provider. 
+You can then visit a URL to see the page equivalent to http://127.0.0.1:5001 in [above section](#local deploy of the server). 
+You need to link your open-plan gui to this URL.
+---
+**NOTE**
+
+In that case open-plan can be deployed both locally or online.
+
+---
+
+---
+**NOTE**
+
+open-plan GUI does not need to be deployed on the same service provider as the open-plan server.
+
+---
+
+
+
+
+
 ## Develop while services are running
 
 ### Using [redis](https://redis.io/documentation)
