@@ -1,11 +1,28 @@
-# simulation-server
+# open-plan-tool simulation-server
 
-The open-plan-tool/gui sends simulation requests to a simulation server so that you can queue tasks and still use the app while the simulation to be done. The server can be running on your local computer, or you can set it up online. An online server hosted by Reiner Lemoine Institut is setup by default for open-plan-tool/gui
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
+Project page:
+https://github.com/open-plan-tool/simulation-server
+
+Developed by [Reiner Lemoine Institut](https://reiner-lemoine-institut.de/en/) in the scope of the [open_plan project](https://reiner-lemoine-institut.de/en/open-plan-bottom-up-energy-transition/).
+
+The open-plan-tool simulation-server runs energy model optimization on demand and returns optimal solution, if any. 
+
+The [open-plan-tool/gui](https://github.com/open-plan-tool/gui) sends simulation requests to a simulation server so that you can queue tasks and still use the app while the simulation to be done. The server can be running on your local computer, or you can set it up online. An online server hosted by Reiner Lemoine Institut is setup by default for open-plan-tool/gui
 
 
 The code in this repository creates the simulation server and a basic server API to dispatch [mvs](https://github.com/rl-institut/multi-vector-simulator) simulation tasks to a queue of workers.
 The API typically receives a post request with a json input file, sends this file to a parser which
 initiate an MVS simulation. Once the simulation is done, a json response is sent back. The json results can also be retrieved with the task id.
+
+## License
+
+This project is licensed under `GNU AFFERO GENERAL PUBLIC LICENSE. See the LICENSE file for details.
+
+## Prerequisite
+
+You need to be able to run `docker-compose` commands, the simpler might be to install [docker desktop](https://www.docker.com/products/docker-desktop/)
 
 ## Get started
 
@@ -56,10 +73,6 @@ In that case open-plan can be deployed both locally or online.
 open-plan GUI does not need to be deployed on the same service provider as the open-plan server.
 
 ---
-
-
-
-
 
 ## Develop while services are running
 
