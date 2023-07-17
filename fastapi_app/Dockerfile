@@ -13,6 +13,7 @@ RUN pip install -r /tmp/requirements.txt
 # install multi-vector-simulator's version pinned in docker-compose.yml file
 RUN pip install multi-vector-simulator==$mvs_version
 RUN pip install gunicorn
+RUN pip install jinja2==3.0
 
 COPY . /fastapi_app
 
