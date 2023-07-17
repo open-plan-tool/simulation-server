@@ -7,9 +7,12 @@ https://github.com/open-plan-tool/simulation-server
 
 Developed by [Reiner Lemoine Institut](https://reiner-lemoine-institut.de/en/) in the scope of the [open_plan project](https://reiner-lemoine-institut.de/en/open-plan-bottom-up-energy-transition/).
 
-The open-plan-tool simulation-server runs energy model optimization on demand and returns optimal solution, if any. 
+The open-plan-tool simulation-server runs energy model optimization on demand and returns optimal solution, if any. An example architecture in which this simulation-sever is provided on the following picture
+
+![open-plan_structure](https://github.com/open-plan-tool/simulation-server/assets/4399407/58446a8d-f491-4cf5-be58-6a0d63718d08)
 
 The [open-plan-tool/gui](https://github.com/open-plan-tool/gui) sends simulation requests to a simulation server so that you can queue tasks and still use the app while the simulation to be done. The server can be running on your local computer, or you can set it up online. An online server hosted by Reiner Lemoine Institut is setup by default for open-plan-tool/gui
+
 
 
 The code in this repository creates the simulation server and a basic server API to dispatch [mvs](https://github.com/rl-institut/multi-vector-simulator) simulation tasks to a queue of workers.
@@ -60,6 +63,7 @@ You need first to have access to online services to host the server (eg. one of 
 You might need to adapt the docker-compose.yml file to be able to access the docker container on a subdomain of your service provider. 
 You can then visit a URL to see the page equivalent to http://127.0.0.1:5001 in [above section](#local deploy of the server). 
 You need to link your open-plan gui to this URL.
+
 ---
 **NOTE**
 
