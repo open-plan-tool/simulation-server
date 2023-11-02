@@ -28,7 +28,7 @@ services:
         mvs_version: ${MVS_DEV_VERSION}
       # context should be the name of the folder which define the tasks
       context: task_queue
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_dev
     depends_on:
       - redis
     networks:
