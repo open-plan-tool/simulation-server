@@ -1,0 +1,16 @@
+{% extends 'index.html' %}
+
+{% block body %}
+
+<div>
+    <h2>Sensitivity Analysis</h2>
+    {% if task_id %}
+        <p>
+            {{ task_id }}: <a href="{{ url_for('check_sensitivity_analysis', task_id=task_id) }}">results</a>
+        </p>
+    {% else %}
+        <p> The input parameters were not found in the input json file</p>
+    {% endif %}
+</div>
+
+{% endblock body %}

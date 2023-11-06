@@ -1,3 +1,4 @@
+import copy
 import os
 import json
 import io
@@ -57,10 +58,10 @@ templates = Jinja2Templates(directory=os.path.join(SERVER_ROOT, "templates"))
 
 
 @app.get("/")
-def index(request: Request) -> Response:
+def index(request: Request, template: str = "index.html") -> Response:
 
     return templates.TemplateResponse(
-        "index.html",
+        template,
         {
             "request": request,
             "mvs_dev_version": MVS_DEV_VERSION,
@@ -92,6 +93,18 @@ async def simulate_json_variable_open_plan(request: Request):
     return await simulate_json_variable(request, queue="open_plan")
 
 
+@app.post("/sendjson/openplan/sensitivity-analysis")
+async def sensitivity_analysis_json_variable_open_plan(request: Request):
+
+    input_dict = await request.json()
+
+    sensitivity_analysis_id = run_sensitivity_analysis(
+        input_json=json.dumps(input_dict)
+    )
+
+    return await check_sensitivity_analysis(sensitivity_analysis_id)
+
+
 @app.post("/uploadjson/dev")
 def simulate_uploaded_json_files_dev(
     request: Request, json_file: UploadFile = File(...)
@@ -114,6 +127,38 @@ def simulate_uploaded_json_files_open_plan(
     """
     json_content = jsonable_encoder(json_file.file.read())
     return run_simulation_open_plan(request, input_json=json_content)
+
+
+@app.post("/uploadjson-sensitivity-analysis/open_plan")
+def sensitivity_analysis_uploaded_json_files_open_plan(
+    request: Request, json_file: UploadFile = File(...)
+) -> Response:
+    """Receive mvs sensitivity analysis parameter in json post request and send it to simulator
+    the value of `name` property of the input html tag should be `json_file` as the second
+    argument of this function
+    """
+    json_content = jsonable_encoder(json_file.file.read())
+
+    sensitivity_analysis_id = run_sensitivity_analysis(input_json=json_content)
+
+    return templates.TemplateResponse(
+        "submitted_sensitivity_analysis.html",
+        {"request": request, "task_id": sensitivity_analysis_id},
+    )
+
+
+def run_sensitivity_analysis(input_json=None, queue="open_plan"):
+    """Send a sensitivity analysis task to a celery worker"""
+
+    """Receive mvs simulation parameter in json post request and send it to simulator"""
+    input_dict = json.loads(input_json)
+
+    sensitivity_analysis = celery_app.send_task(
+        f"{queue}.run_sensitivity_analysis", args=[input_dict], queue=queue, kwargs={}
+    )
+    answer = sensitivity_analysis.id
+
+    return answer
 
 
 def run_simulation(request: Request, input_json=None, queue="dev") -> Response:
@@ -157,9 +202,7 @@ async def check_task(task_id: str) -> JSONResponse:
         "status": res.state,
         "results": None,
     }
-    if res.state == states.PENDING:
-        task["status"] = res.state
-    else:
+    if res.state != states.PENDING:
         task["status"] = "DONE"
         results_as_dict = json.loads(res.result)
         server_info = results_as_dict.pop("SERVER")
@@ -169,6 +212,65 @@ async def check_task(task_id: str) -> JSONResponse:
         if "ERROR" in task["results"]:
             task["status"] = "ERROR"
             task["results"] = results_as_dict
+
+    return JSONResponse(content=jsonable_encoder(task))
+
+
+@app.get("/check-sensitivity-analysis/{task_id}")
+async def check_sensitivity_analysis(task_id: str) -> JSONResponse:
+    sensitivity_analysis = celery_app.AsyncResult(task_id)
+
+    task = {
+        "server_info": None,
+        "mvs_version": None,
+        "id": task_id,
+        "status": sensitivity_analysis.state,
+        "results": dict(reference_simulation_id=None, sensitivity_analysis_steps=None),
+    }
+    if sensitivity_analysis.state != states.PENDING:
+        sa_results = sensitivity_analysis.result
+        if "ERROR" in sa_results:
+            task["status"] = "ERROR"
+            task["results"] = sa_results
+        else:
+            # fetch results of each sensitivity analysis steps
+            sa_step_ids = sa_results["sensitivity_analysis_ids"]
+
+            if "ERROR" in sa_step_ids:
+                task["status"] = "ERROR"
+                task["results"]["sensitivity_analysis_ids"] = sa_step_ids
+                answers = None
+            else:
+                server_info = None
+                answers = []
+                for sa_step_id in sa_step_ids:
+                    sa_step = celery_app.AsyncResult(sa_step_id)
+                    if sa_step.ready():
+                        results_as_dict = json.loads(sa_step.result)
+                        server_info = results_as_dict.pop("SERVER")
+                        if "ERROR" in results_as_dict:
+
+                            temp = copy.deepcopy(results_as_dict)
+                            temp.pop("step_idx")
+                            results_as_dict["output_values"] = temp
+                        answers.append(results_as_dict)
+                    else:
+                        task["status"] = states.PENDING
+                        answers = None
+                        break
+
+            if answers is not None:
+
+                task["status"] = "DONE"
+                task["server_info"] = server_info
+                task["mvs_version"] = MVS_SERVER_VERSIONS.get(server_info, "unknown")
+                task["results"]["sensitivity_analysis_steps"] = [
+                    d["output_values"]
+                    for d in sorted(answers, key=lambda item: item["step_idx"])
+                ]
+            # the "result" of the main simulation here is the mvs token leading to the simulations results
+            # that can be checked with url /check/{task_id}
+            task["results"]["reference_simulation_id"] = sa_results["ref_sim_id"]
 
     return JSONResponse(content=jsonable_encoder(task))
 
@@ -212,4 +314,3 @@ async def get_lp_file(task_id: str) -> Response:
             response = "There is no LP file output, did you check the LP file option when you started your simulation?"
 
     return response
-
