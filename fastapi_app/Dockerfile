@@ -11,8 +11,9 @@ COPY requirements.txt /tmp/
 RUN python -m pip install --upgrade pip
 RUN pip install -r /tmp/requirements.txt
 # install multi-vector-simulator's version pinned in docker-compose.yml file
-RUN pip install multi-vector-simulator==$mvs_version
-RUN pip install gunicorn
+RUN pip install multi-vector-simulator==$mvs_version gunicorn
+
+
 
 COPY . /fastapi_app
 

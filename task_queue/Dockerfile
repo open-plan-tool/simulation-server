@@ -17,9 +17,7 @@ COPY requirements.txt /tmp/
 RUN python -m pip install --upgrade pip
 RUN pip install -r /tmp/requirements.txt
 # install multi-vector-simulator's version pinned in docker-compose.yml file
-RUN pip install multi-vector-simulator==$MVS_VERSION
-RUN pip install pyomo==5.7.2
-RUN pip install importlib-metadata==4.13.0
+RUN pip install multi-vector-simulator==$MVS_VERSION importlib-metadata==4.13.0 pyomo==5.7.2
 
 run echo $(pip freeze)
 COPY . /queue

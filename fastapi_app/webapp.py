@@ -212,4 +212,3 @@ async def get_lp_file(task_id: str) -> Response:
             response = "There is no LP file output, did you check the LP file option when you started your simulation?"
 
     return response
-
