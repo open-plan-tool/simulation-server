@@ -1,8 +1,8 @@
 FROM python:3.10-slim
 
 
-ENV CELERY_BROKER_URL redis://redis:6379/0
-ENV CELERY_RESULT_BACKEND redis://redis:6379/0
+ENV CELERY_BROKER_URL srv-captain--mvs-server-redis
+ENV CELERY_RESULT_BACKEND srv-captain--mvs-server-redis
 
 RUN apt-get update && \
     apt-get install -y git && \
