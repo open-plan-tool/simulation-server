@@ -1,7 +1,5 @@
 FROM tiangolo/uvicorn-gunicorn:python3.10
 
-ARG mvs_version
-
 ENV CELERY_BROKER_URL redis://redis:6379/0
 ENV CELERY_RESULT_BACKEND redis://redis:6379/0
 
@@ -11,7 +9,7 @@ COPY fastapi_app/requirements.txt /tmp/
 RUN python -m pip install --upgrade pip
 RUN pip install -r /tmp/requirements.txt
 # install multi-vector-simulator's version pinned in docker-compose.yml file
-RUN pip install multi-vector-simulator==$mvs_version gunicorn
+RUN pip install multi-vector-simulator==1.0.7rc3 gunicorn
 
 
 
