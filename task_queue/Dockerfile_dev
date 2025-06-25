@@ -1,8 +1,6 @@
 FROM python:3.10-slim
 
 
-ENV CELERY_BROKER_URL srv-captain--mvs-server-redis
-ENV CELERY_RESULT_BACKEND srv-captain--mvs-server-redis
 
 RUN apt-get update && \
     apt-get install -y git && \
@@ -14,7 +12,7 @@ COPY task_queue/requirements.txt /tmp/
 RUN python -m pip install --upgrade pip
 RUN pip install -r /tmp/requirements.txt
 # install multi-vector-simulator's version pinned in docker-compose.yml file
-RUN pip install multi-vector-simulator==1.0.7rc3 importlib-metadata==4.13.0
+RUN pip install multi-vector-simulator==1.0.7rc3 importlib-metadata==4.13.0 oemof.network==0.5.0a5
 
 run echo $(pip freeze)
 COPY task_queue/ /queue
