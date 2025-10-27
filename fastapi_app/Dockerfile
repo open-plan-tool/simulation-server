@@ -1,7 +1,4 @@
-FROM tiangolo/uvicorn-gunicorn:python3.10
-
-ENV CELERY_BROKER_URL redis://redis:6379/0
-ENV CELERY_RESULT_BACKEND redis://redis:6379/0
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.11
 
 COPY fastapi_app/requirements.txt /tmp/
 
