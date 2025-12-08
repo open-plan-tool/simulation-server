@@ -1,4 +1,5 @@
 import os
+import socket
 import time
 import traceback
 import json
@@ -45,3 +46,13 @@ def run_simulation(simulation_input: dict,) -> dict:
             INPUT_JSON_MVS=dict_values,
         )
     return json.dumps(simulation_output)
+
+@app.task(bind=True, name="dev.ping")
+def ping(self):
+    return {
+        "status": "pong",
+        "task_id": self.request.id,
+        "hostname": socket.gethostname(),
+        "pid": os.getpid(),
+        "timestamp": time.time(),
+    }
