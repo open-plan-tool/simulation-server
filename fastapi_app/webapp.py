@@ -100,6 +100,41 @@ async def simulate_json_variable(request: Request, queue: str = "dev"):
 
     return queue_answer
 
+from fastapi import APIRouter
+from celery import current_app
+from kombu.exceptions import OperationalError
+import redis
+import os
+
+def redis_alive():
+    try:
+        r = redis.Redis.from_url(os.environ["CELERY_BROKER_URL"])
+        r.ping()
+        return True
+    except Exception:
+        return False
+
+def celery_workers_alive():
+    try:
+        insp = current_app.control.inspect(timeout=1)
+        pong = insp.ping()
+        return bool(pong)
+    except Exception:
+        return False
+
+@app.get("/health/")
+async def health_check():
+    status = {
+        "redis_alive": redis_alive(),
+        "workers_alive": celery_workers_alive(),
+    }
+
+    if not status["redis_alive"]:
+        status["ERROR"] = "Redis broker not reachable"
+    elif not status["workers_alive"]:
+        status["ERROR"] = "No Celery workers responding to inspect()"
+
+    return status
 
 @app.post("/sendjson/")
 async def simulate_json_variable_dev(request: Request):
