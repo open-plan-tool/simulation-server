@@ -11,5 +11,5 @@ CELERY_RESULT_BACKEND = os.environ.get(
 app = Celery("tasks", broker=CELERY_BROKER_URL, backend=CELERY_RESULT_BACKEND)
 app.conf.task_queues = (
     Queue("dev", routing_key="dev.#"),
-    Queue("open_plan", routing_key="open_plan.#"),
+    # Queue("open_plan", routing_key="open_plan.#"),
 )
