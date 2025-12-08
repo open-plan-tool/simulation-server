@@ -59,14 +59,14 @@ templates = Jinja2Templates(directory=os.path.join(SERVER_ROOT, "templates"))
 async def debug_ping():
     result = celery_app.send_task("dev.ping", queue="dev")
 
-    try:
-        response = result.get(timeout=10)
-    except Exception as e:
-        return {
-            "status": "ERROR",
-            "task_id": result.id,
-            "error": str(e),
-        }
+    # try:
+    response = result.get(timeout=10)
+    # except Exception as e:
+    #     return {
+    #         "status": "ERROR",
+    #         "task_id": result.id,
+    #         "error": str(e),
+    #     }
 
     return {
         "status": "OK",
