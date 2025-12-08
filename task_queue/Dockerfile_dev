@@ -15,7 +15,7 @@ RUN pip install -r /tmp/requirements.txt
 RUN pip install multi-vector-simulator==1.0.7rc3 importlib-metadata==4.13.0 oemof.network==0.5.0a5
 
 run echo $(pip freeze)
-COPY task_queue/ /queue
+COPY . /queue
 
 # avoid running as root user
 RUN useradd --create-home appuser
@@ -24,4 +24,4 @@ USER appuser
 
 WORKDIR /queue
 
-ENTRYPOINT celery -A tasks worker --loglevel=info --queues=${CELERY_TASK_NAME}
+ENTRYPOINT celery -A task_queue.tasks worker --loglevel=info --queues=${CELERY_TASK_NAME}
