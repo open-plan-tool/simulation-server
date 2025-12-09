@@ -1,3 +1,4 @@
+import math
 import os
 import json
 import io
@@ -189,7 +190,19 @@ async def check_task(task_id: str) -> JSONResponse:
             task["status"] = "ERROR"
             task["results"] = results_as_dict
 
-    return JSONResponse(content=jsonable_encoder(task))
+    def clean_floats(obj):
+        if isinstance(obj, float):
+            if math.isnan(obj) or math.isinf(obj):
+                return None
+        if isinstance(obj, dict):
+            return {k: clean_floats(v) for k, v in obj.items()}
+        if isinstance(obj, list):
+            return [clean_floats(i) for i in obj]
+        return obj
+
+    cleaned = clean_floats(task)
+
+    return JSONResponse(content=jsonable_encoder(cleaned))
 
 
 @app.get("/get_lp_file/{task_id}")
