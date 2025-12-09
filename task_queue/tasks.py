@@ -5,6 +5,7 @@ import traceback
 import json
 from copy import deepcopy
 from celery import Celery
+from celery.bin.control import inspect
 from celery.utils.log import get_task_logger
 
 from multi_vector_simulator.server import run_simulation as mvs_simulation
@@ -54,5 +55,6 @@ def ping(self):
         "task_id": self.request.id,
         "hostname": socket.gethostname(),
         "pid": os.getpid(),
+        "registered_tasks": list(app.tasks.keys()),
         "timestamp": time.time(),
     }
