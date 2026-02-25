@@ -23,7 +23,9 @@ app = Celery(CELERY_TASK_NAME, broker=CELERY_BROKER_URL, backend=CELERY_RESULT_B
 
 
 @app.task(name=f"{CELERY_TASK_NAME}.run_simulation")
-def run_simulation(simulation_input: dict,) -> dict:
+def run_simulation(
+    simulation_input: dict,
+) -> dict:
     logger.info("Start new simulation")
     epa_json = deepcopy(simulation_input)
     dict_values = None
@@ -46,6 +48,7 @@ def run_simulation(simulation_input: dict,) -> dict:
             INPUT_JSON_MVS=dict_values,
         )
     return json.dumps(simulation_output)
+
 
 @app.task(bind=True, name="dev.ping")
 def ping(self):
