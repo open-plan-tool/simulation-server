@@ -1,4 +1,4 @@
 {
   "schemaVersion": 2,
-  "dockerfilePath": "fastapi_app/Dockerfile"
+  "dockerfilePath": "task_queue/Dockerfile"
 }
