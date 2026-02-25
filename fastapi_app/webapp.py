@@ -55,6 +55,7 @@ templates = Jinja2Templates(directory=os.path.join(SERVER_ROOT, "templates"))
 
 # Test Driven Development --> https://fastapi.tiangolo.com/tutorial/testing/
 
+
 @app.get("/debug/ping")
 async def debug_ping():
     result = celery_app.send_task("dev.ping", queue="dev")
