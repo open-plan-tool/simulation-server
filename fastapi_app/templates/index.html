@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
-    <meta name="description" content="MVS simulation server" />
+    <meta name="description" content="EesyPlan simulation server" />
     <link rel="icon" href="{{ url_for('static', path='/favicon.ico') }}" />
     <link
         rel="stylesheet"
@@ -15,29 +15,30 @@
         crossorigin="anonymous"
     />
     <link href="{{ url_for('static', path='/style.css') }}" rel="stylesheet" />
-    <title>MVS SimServer</title>
+    <title>OpenPlan SimServer</title>
 
 </head>
 <body>
-<h1>Welcome to MVS simulation server! </h1>
+<h1>Welcome to OpenPlan simulation server! </h1>
 <div>
+	  <p>This simulation server uses oemof-eesyplan as a backend, it recieves request as jsonified oemof-datapackage and returns a JSON with the oemof-solph results</p>
     <h2>Test simulation with custom json</h2>
-    <h3>Actual multi-vector-simulator's version for development: {{ mvs_dev_version }}</h3>
+    <h3>Actual oemof-eesyplan's version for development: {{ dev_version }}</h3>
 
-    <p>Upload a mvs input json file and click on "Run simulation"</p>
+    <p>Upload a datapackage in JSON format and click on "Run simulation"</p>
     <form action="/uploadjson/dev" enctype="multipart/form-data" method="post">
     <!-- the value of `name` property should be used in the uploadjson endpoint function -->
     <input name="json_file" type="file" multiple>
     <input value="Run simulation" type="submit">
     </form>
 
-    <h3>Actual multi-vector-simulator's version for open_plan: {{ mvs_open_plan_version }}</h3>
+	  <h3>Actual oemof-eesyplan's version for OpenPlan production: {{ prod_version }}</h3>
 
-    <p>Upload a mvs input json file and click on "Run simulation"</p>
-    <form action="/uploadjson/open_plan" enctype="multipart/form-data" method="post">
-        <!-- the value of `name` property should be used in the uploadjson endpoint function -->
-        <input name="json_file" type="file" multiple>
-        <input value="Run simulation" type="submit">
+    <p>Upload a datapackage in JSON format and click on "Run simulation"</p>
+    <form action="/uploadjson/prod" enctype="multipart/form-data" method="post">
+    <!-- the value of `name` property should be used in the uploadjson endpoint function -->
+    <input name="json_file" type="file" multiple>
+    <input value="Run simulation" type="submit">
     </form>
 </div>
 
@@ -45,7 +46,8 @@
 <div>
     <h2>More information</h2>
     <ul>
-        <li><a href="https://github.com/rl-institut/multi-vector-simulator" target="_blank">More about MVS simulation</a></li>
+        <li><a href="https://github.com/oemof/oemof-eesyplan" target="_blank">More about oemof-eesyplan</a></li>
+        <li><a href="" target="_blank">More about OpenPlan Simulation server</a></li>
     </ul>
 </div>
 {% block body %}{% endblock body%}
