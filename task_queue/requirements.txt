@@ -2,4 +2,3 @@ celery
 flower
 redis
 python-multipart
-gunicorn
