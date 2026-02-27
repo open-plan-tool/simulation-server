@@ -1,4 +1,5 @@
 import os
+
 import time
 import traceback
 import json
@@ -6,6 +7,16 @@ from celery import Celery
 from celery.utils.log import get_task_logger
 import tempfile
 from pathlib import Path
+
+from oemof.datapackage import datapackage  # noqa
+
+from oemof.eesyplan import export_results
+
+from oemof.eesyplan.datapackage.create_energy_system import (
+    optimise,
+    create_energy_system_from_dp,
+)
+
 
 SIMULATION_VERSION = os.environ.get("SIMULATION_VERSION", "no_version")
 
@@ -20,6 +31,8 @@ CELERY_TASK_NAME = os.environ.get("CELERY_TASK_NAME", "dev")
 app = Celery(CELERY_TASK_NAME, broker=CELERY_BROKER_URL, backend=CELERY_RESULT_BACKEND)
 
 
+
+
 def __run_simulation(
     simulation_input):
     logger.info("Start new simulation")
@@ -27,19 +40,20 @@ def __run_simulation(
 
     with tempfile.TemporaryDirectory(prefix="dp_") as td:
         temp_path = Path(td)
-        # TODO implement in oemof-datapackage or oemof-eesyplan
-        # dp_path = rebuild_single_json(simulation_input, temp_path)
-        logger.debug("Converted datapackage in JSON format back to datapackage")
-
-        # -------------- RUNNING THE SCENARIOS --------------
-        # scenario = dp_path.name
-        # # set paths for scenario and result directories
-        # results_path = dp_path / "results"
-        # results_path.mkdir()
+        dp_path = datapackage.rebuild_dp_from_json(simulation_input, temp_path)
         try:
-            # run eezyplan here
-            pass
-            # simulation_output["results"] = df.to_json()
+            es = create_energy_system_from_dp(dp_path, plot="None")
+
+            results = optimise(es)
+
+            with tempfile.TemporaryDirectory(prefix="dp_results_") as tres:
+                results_path = Path(tres)
+
+                export_results(results, path=results_path)
+                json_export = datapackage.export_dp_to_json(results_path)
+                simulation_output["raw_results"] = json.loads(json_export)
+                # imported_results = import_results(path=results_path, es=es)
+
         except Exception as e:
             logger.error(
                 "An exception occured in the simulation task: {}".format(
