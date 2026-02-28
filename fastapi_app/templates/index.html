@@ -25,7 +25,7 @@
     <h2>Test simulation with custom json</h2>
     <h3>Actual oemof-eesyplan's version for development: {{ dev_version }}</h3>
 
-    <p>Upload a datapackage in JSON format and click on "Run simulation"</p>
+    <p>Upload a JSONIFIED datapackage or a zipped datapackage and click on "Run simulation"</p>
     <form action="/uploadjson/dev" enctype="multipart/form-data" method="post">
     <!-- the value of `name` property should be used in the uploadjson endpoint function -->
     <input name="json_file" type="file" multiple>
