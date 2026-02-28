@@ -6,7 +6,8 @@ COPY fastapi_app/requirements.txt /tmp/
 RUN python -m pip install --upgrade pip
 RUN pip install -r /tmp/requirements.txt
 # install multi-vector-simulator's version pinned in docker-compose.yml file
-RUN pip install multi-vector-simulator==1.0.7rc3 gunicorn
+RUN pip install gunicorn
+RUN pip install "oemof-datapackage @ git+https://github.com/oemof/oemof-datapackage.git@feature/export_dp_to_json_and_reverse" --no-cache-dir
 
 
 
