@@ -9,6 +9,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import StreamingResponse
 from celery.exceptions import TimeoutError
+import tempfile
+import zipfile
+from oemof.datapackage import datapackage  # noqa
 
 
 try:
@@ -119,7 +122,41 @@ def simulate_uploaded_json_files_dev(
     the value of `name` property of the input html tag should be `json_file` as the second
     argument of this function
     """
-    json_content = jsonable_encoder(json_file.file.read())
+
+    if "json" in json_file.filename:
+        json_content = jsonable_encoder(json_file.file.read())
+    elif "zip" in json_file.filename:
+        # TODO do the same with only pathlib and temp files
+        import uuid
+        import shutil
+
+        ZIP_DIR = "zipped"
+        UNZIP_DIR = "unzipped"
+        zip_id = str(uuid.uuid4())
+        from pathlib import Path
+
+        unzip_path = os.path.join(UNZIP_DIR, zip_id)
+        os.makedirs(unzip_path)
+        zip_path = os.path.join(UNZIP_DIR, f"{zip_id}.zip")
+        with open(zip_path, "wb") as f:
+            shutil.copyfileobj(json_file.file, f)
+        with zipfile.ZipFile(zip_path, "r") as zipf:
+            zipf.extractall(unzip_path)
+        os.remove(zip_path)
+        unzip_path = Path(unzip_path)
+        extracted_name = [f for f in unzip_path.glob("*")]
+        extracted_name = extracted_name[0]
+        json_content = datapackage.export_dp_to_json(extracted_name)
+
+        # with tempfile.TemporaryDirectory() as td:
+        #     # Open the zip file
+        #     with zipfile.ZipFile(json_file.file, 'r') as zip_ref:
+        #         # Extract all the contents into the specified directory
+        #         zip_ref.extractall(td)
+        #
+        #     json_content = json.dumps(datapackage.export_dp_to_json(td))
+        #     json_content = datapackage.export_dp_to_json(td)
+
     return run_simulation(request, input_json=json_content)
 
 
@@ -187,7 +224,7 @@ async def check_task(task_id: str) -> JSONResponse:
         except KeyError:
             for k in ["server_info", "simulation_version"]:
                 task[k] = "Error: Could not retrieve simulation metadata"
-        task["results"] = json.dumps(results_as_dict)
+        task["results"] = results_as_dict
         if "ERROR" in task["results"]:
             task["status"] = "ERROR"
             task["results"] = results_as_dict
