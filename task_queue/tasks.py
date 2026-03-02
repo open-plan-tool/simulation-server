@@ -31,8 +31,6 @@ CELERY_TASK_NAME = os.environ.get("CELERY_TASK_NAME", "dev")
 app = Celery(CELERY_TASK_NAME, broker=CELERY_BROKER_URL, backend=CELERY_RESULT_BACKEND)
 
 
-
-
 def __run_simulation(
     simulation_input):
     logger.info("Start new simulation")
