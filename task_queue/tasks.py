@@ -11,11 +11,8 @@ from pathlib import Path
 from oemof.datapackage import datapackage  # noqa
 
 from oemof.eesyplan import export_results
-
-from oemof.eesyplan.datapackage.create_energy_system import (
-    optimise,
-    create_energy_system_from_dp,
-)
+from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_dp
+from oemof.eesyplan.model import optimise
 
 
 SIMULATION_VERSION = os.environ.get("SIMULATION_VERSION", "no_version")
