@@ -12,7 +12,7 @@ COPY task_queue/requirements.txt /tmp/
 RUN python -m pip install --upgrade pip
 RUN pip install -r /tmp/requirements.txt
 # install multi-vector-simulator's version pinned in docker-compose.yml file
-RUN pip install multi-vector-simulator==1.0.7rc3 importlib-metadata==4.13.0 oemof.network==0.5.0a5
+RUN pip install multi-vector-simulator==$MVS_VERSION importlib-metadata==4.13.0 oemof.network==0.5.0a5
 
 run echo $(pip freeze)
 COPY task_queue/ /queue
