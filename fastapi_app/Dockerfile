@@ -1,12 +1,14 @@
 FROM tiangolo/uvicorn-gunicorn-fastapi:python3.11
 
+ARG MVS_VERSION=${MVS_VERSION}
+
 COPY fastapi_app/requirements.txt /tmp/
 
 # install requirements
 RUN python -m pip install --upgrade pip
 RUN pip install -r /tmp/requirements.txt
 # install multi-vector-simulator's version pinned in docker-compose.yml file
-RUN pip install multi-vector-simulator==1.0.7rc3 gunicorn
+RUN pip install multi-vector-simulator==$MVS_VERSION gunicorn
 
 
 
