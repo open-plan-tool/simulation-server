@@ -37,7 +37,7 @@ def __run_simulation(
         temp_path = Path(td)
         dp_path = datapackage.rebuild_dp_from_json(simulation_input, temp_path)
         try:
-            es = create_energy_system_from_dp(dp_path, plot="None")
+            es = create_energy_system_from_dp(dp_path)
 
             results = optimise(es)
 
