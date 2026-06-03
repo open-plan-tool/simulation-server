@@ -9,6 +9,7 @@ import tempfile
 from pathlib import Path
 
 from oemof.datapackage import datapackage  # noqa
+from oemof.datapackage import __version__ as dp_version
 
 from oemof.eesyplan import export_results
 from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_dp
@@ -31,7 +32,7 @@ app = Celery(CELERY_TASK_NAME, broker=CELERY_BROKER_URL, backend=CELERY_RESULT_B
 def __run_simulation(simulation_input):
     logger.info("Start new simulation")
     simulation_output = {"SERVER": CELERY_TASK_NAME, "VERSION": SIMULATION_VERSION}
-
+    logger.info(f"Using datapackage version: {dp_version}")
     with tempfile.TemporaryDirectory(prefix="dp_") as td:
         temp_path = Path(td)
         dp_path = datapackage.rebuild_dp_from_json(simulation_input, temp_path)
