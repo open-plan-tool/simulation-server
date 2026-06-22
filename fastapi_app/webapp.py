@@ -67,6 +67,33 @@ async def submit_simulation(files: List[UploadFile] = File(...)):
     return JSONResponse(content={"task_id": task_id})
 
 
+@app.post("/submit_mosaik")
+async def submit_mosaik_simulation(file: UploadFile = File(...)):
+    """Accept uploaded scenario file for mosaik simulation, save to resources dir, queue task."""
+    task_id = str(uuid.uuid4())
+
+    task_resources_dir = os.path.join(RESOURCES_DIR, task_id)
+    os.makedirs(task_resources_dir, exist_ok=True)
+
+    content = await file.read()
+    file_path = os.path.join(task_resources_dir, file.filename)
+    with open(file_path, "wb") as f:
+        f.write(content)
+
+    scenario_json = json.loads(content)
+
+    queue = SimulationQueue()
+    queue.publish_mosaik(task_id, scenario_json)
+    queue.close()
+
+    redis_client.hset(
+        f"task:{task_id}",
+        mapping={"status": "PENDING", "files": "[]", "error": ""},
+    )
+
+    return JSONResponse(content={"task_id": task_id})
+
+
 @app.get("/check/{task_id}")
 async def check_task(task_id: str):
     data = redis_client.hgetall(f"task:{task_id}")

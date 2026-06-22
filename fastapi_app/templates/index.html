@@ -4,18 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="DaceDS Simulation Server" />
+    <meta name="description" content="Simulation Server" />
     <link href="{{ url_for('static', path='/style.css') }}" rel="stylesheet" />
-    <title>DaceDS Simulation Server</title>
+    <title>Simulation Server</title>
 </head>
 
 <body>
 
-    <h1>DaceDS Simulation Server</h1>
+    <h1>Simulation Server</h1>
     <p class="subtitle">Upload simulation files and run your simulation</p>
 
-    <!-- Upload Card -->
-    <div class="card" id="upload-card">
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="daceds">DaceDS</button>
+        <button class="tab-btn" data-tab="mosaik">Mosaik</button>
+    </div>
+
+    <!-- DaceDS Upload Card -->
+    <div class="card tab-content" id="daceds-card">
         <h2>1. Select Simulation Files</h2>
 
         <div class="upload-area" id="drop-zone" onclick="document.getElementById('file-input').click()">
@@ -25,31 +30,60 @@
 
         <ul class="file-list" id="file-list"></ul>
 
-        <button class="btn" id="submit-btn" onclick="submitSimulation()" disabled>
+        <button class="btn" id="submit-btn" onclick="submitDaceDS()" disabled>
             Submit Simulation
         </button>
-    </div>
 
-    <!-- Status Card -->
-    <div class="card hidden" id="status-card">
-        <h2>2. Simulation Status</h2>
-
-        <div class="status-bar" id="status-bar">
-            <div class="spinner" id="status-spinner"></div>
-            <span id="status-text"></span>
+        <div class="card hidden" id="daceds-status-card">
+            <h2>2. Simulation Status</h2>
+            <div class="status-bar" id="daceds-status-bar">
+                <div class="spinner" id="daceds-status-spinner"></div>
+                <span id="daceds-status-text"></span>
+            </div>
+            <p style="font-size:0.85rem; color:#888;" id="daceds-task-id-display"></p>
         </div>
 
-        <p style="font-size:0.85rem; color:#888;" id="task-id-display"></p>
+        <div class="card hidden" id="daceds-results-card">
+            <h2>3. Results</h2>
+            <ul class="results-list" id="daceds-results-list"></ul>
+            <button class="btn" style="margin-top:1rem" onclick="resetForm('daceds')">
+                Run Another Simulation
+            </button>
+        </div>
     </div>
 
-    <!-- Results Card -->
-    <div class="card hidden" id="results-card">
-        <h2>3. Results</h2>
-        <ul class="results-list" id="results-list"></ul>
+    <!-- Mosaik Upload Card -->
+    <div class="card tab-content hidden" id="mosaik-card">
+        <h2>1. Select Scenario File</h2>
+        <p class="help-text">Create your scenario in the <a href="http://localhost:8002" target="_blank">Mosaik GUI</a>, then upload the JSON here.</p>
 
-        <button class="btn" style="margin-top:1rem" onclick="resetForm()">
-            Run Another Simulation
+        <div class="upload-area" id="mosaik-drop-zone" onclick="document.getElementById('mosaik-file-input').click()">
+            <p>Click or drag JSON file here to upload</p>
+        </div>
+        <input type="file" id="mosaik-file-input" class="hidden" accept=".json" />
+
+        <ul class="file-list" id="mosaik-file-list"></ul>
+
+        <button class="btn" id="submit-mosaik-btn" onclick="submitMosaik()" disabled>
+            Submit Mosaik Simulation
         </button>
+
+        <div class="card hidden" id="mosaik-status-card">
+            <h2>2. Simulation Status</h2>
+            <div class="status-bar" id="mosaik-status-bar">
+                <div class="spinner" id="mosaik-status-spinner"></div>
+                <span id="mosaik-status-text"></span>
+            </div>
+            <p style="font-size:0.85rem; color:#888;" id="mosaik-task-id-display"></p>
+        </div>
+
+        <div class="card hidden" id="mosaik-results-card">
+            <h2>3. Results</h2>
+            <ul class="results-list" id="mosaik-results-list"></ul>
+            <button class="btn" style="margin-top:1rem" onclick="resetForm('mosaik')">
+                Run Another Simulation
+            </button>
+        </div>
     </div>
 
     <script src="{{ url_for('static', path='/app.js') }}"></script>

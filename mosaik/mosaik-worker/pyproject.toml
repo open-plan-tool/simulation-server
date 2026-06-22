@@ -1,0 +1,9 @@
+[project]
+name = "mosaik-worker"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "pika",
+    "redis",
+    "websockets>=15.0.1",
+]

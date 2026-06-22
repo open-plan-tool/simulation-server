@@ -17,7 +17,54 @@ h1 {
 
 .subtitle {
     color: #666;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid #e0e0e0;
+    margin-bottom: 1.5rem;
+}
+
+.tab-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    background: none;
+    font-size: 1rem;
+    cursor: pointer;
+    color: #666;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.tab-btn:hover {
+    color: #333;
+}
+
+.tab-btn.active {
+    color: #4a90d9;
+    border-bottom-color: #4a90d9;
+    font-weight: 500;
+}
+
+/* Help text */
+.help-text {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+}
+
+.help-text a {
+    color: #4a90d9;
+    text-decoration: none;
+}
+
+.help-text a:hover {
+    text-decoration: underline;
 }
 
 /* Card */

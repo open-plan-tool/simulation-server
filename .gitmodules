@@ -1,0 +1,4 @@
+[submodule "mosaik-gui"]
+	path = mosaik/mosaik-gui
+	url = https://gitlab.com/mosaik/mosaik-gui.git
+	branch = 92-make-available-as-container

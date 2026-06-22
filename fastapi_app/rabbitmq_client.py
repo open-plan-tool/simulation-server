@@ -12,12 +12,22 @@ class SimulationQueue:
         )
         self.channel = self.connection.channel()
         self.channel.queue_declare(queue="simulation_requests", durable=True)
+        self.channel.queue_declare(queue="mosaik_requests", durable=True)
 
     def publish(self, task_id: str, scenario: dict):
         message = {"task_id": task_id, "scenario": scenario}
         self.channel.basic_publish(
             exchange="",
             routing_key="simulation_requests",
+            body=json.dumps(message),
+            properties=pika.BasicProperties(delivery_mode=2),
+        )
+
+    def publish_mosaik(self, task_id: str, scenario: dict):
+        message = {"task_id": task_id, "scenario": scenario}
+        self.channel.basic_publish(
+            exchange="",
+            routing_key="mosaik_requests",
             body=json.dumps(message),
             properties=pika.BasicProperties(delivery_mode=2),
         )
