@@ -87,3 +87,20 @@ def ping(self):
         "pid": os.getpid(),
         "timestamp": time.time(),
     }
+
+if __name__ == "__main__":
+    with open('sim_data_debug.json', 'r') as file:
+        dp = json.load(file)
+
+    # Run simulation locally
+    result = run_simulation(dp)
+
+    # If Celery decorator wraps the output inside AsyncResult, unwrap it
+    if hasattr(result, "get"):
+        result = result.get()
+
+    # Store the exact server output
+    out_path = Path("debug_simulation_output.json")
+    out_path.write_text(json.dumps(result, indent=2))
+
+    print("Simulation results saved to:", out_path.resolve())
