@@ -70,9 +70,9 @@ async def debug_ping():
 @app.get("/")
 def index(request: Request) -> Response:
     return templates.TemplateResponse(
-        "index.html",
-        {
-            "request": request,
+        request=request,
+        name="index.html",
+        context={
             "dev_version": get_worker_version("dev"),
             "prod_version": get_worker_version("prod"),
         },
@@ -189,7 +189,9 @@ def run_simulation(request: Request, input_json=None, queue="dev") -> Response:
     )
 
     return templates.TemplateResponse(
-        "submitted_task.html", {"request": request, "task_id": task.id}
+        request=request,
+        name="submitted_task.html",
+        context={"task_id": task.id},
     )
 
 
