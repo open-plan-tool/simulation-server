@@ -1,16 +1,17 @@
-version: "3"
 services:
   web:
     environment:
       - MVS_DEV_VERSION=${MVS_DEV_VERSION}
       - MVS_OPEN_PLAN_VERSION=${MVS_OPEN_PLAN_VERSION}
+      - CELERY_BROKER_URL=redis://redis:6379
+      - CELERY_RESULT_BACKEND=redis://redis:6379
     build:
       args:
         # this should be in a .env file in the root of the repository
         mvs_version: ${MVS_DEV_VERSION}
       # `context` should be a path to a directory containing a Dockerfile
-      context: ./fastapi_app
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./fastapi_app/Dockerfile
     restart: unless-stopped
     ports:
       - "5001:5001"
@@ -22,13 +23,15 @@ services:
   worker-dev:
     environment:
       - CELERY_TASK_NAME=dev
+      - CELERY_BROKER_URL=redis://redis:6379
+      - CELERY_RESULT_BACKEND=redis://redis:6379
     build:
       args:
         # this should be in a .env file in the root of the repository
         mvs_version: ${MVS_DEV_VERSION}
       # context should be the name of the folder which define the tasks
-      context: task_queue
-      dockerfile: Dockerfile_dev
+      context: .
+      dockerfile: ./task_queue/Dockerfile
     depends_on:
       - redis
     networks:
@@ -36,13 +39,15 @@ services:
   worker-open-plan:
     environment:
       - CELERY_TASK_NAME=open_plan
+      - CELERY_BROKER_URL=redis://redis:6379
+      - CELERY_RESULT_BACKEND=redis://redis:6379
     build:
       args:
         # this should be in a .env file in the root of the repository
         mvs_version: ${MVS_OPEN_PLAN_VERSION}
       # context should be the name of the folder which define the tasks
-      context: task_queue
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./task_queue/Dockerfile
     depends_on:
       - redis
     networks:

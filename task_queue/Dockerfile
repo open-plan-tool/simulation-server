@@ -3,7 +3,8 @@ FROM python:3.12-slim
 RUN apt-get update && \
     apt-get install -y git && \
     apt-get install coinor-cbc -y && \
-    apt-get install graphviz -y
+    apt-get install graphviz -y && \
+    apt-get install tk -y
 
 COPY task_queue/requirements.txt /tmp/
 
