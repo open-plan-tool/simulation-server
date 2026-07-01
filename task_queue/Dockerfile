@@ -14,7 +14,7 @@ RUN pip install -r /tmp/requirements.txt
 #RUN pip install "oemof-eesyplan==$SIMULATION_VERSION" gunicorn
 RUN pip install "git+https://github.com/oemof/oemof-eesyplan.git@main" --no-cache-dir
 RUN pip install gunicorn
-RUN pip install "oemof-datapackage @ git+https://github.com/oemof/oemof-datapackage.git@fix/multilevel-columns-resources"
+RUN pip install "oemof-datapackage @ git+https://github.com/oemof/oemof-datapackage.git"
 
 
 run echo $(pip freeze)
