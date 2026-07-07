@@ -11,9 +11,11 @@ from pathlib import Path
 from oemof.datapackage import datapackage  # noqa
 from oemof.datapackage import __version__ as dp_version
 
-from oemof.eesyplan import export_results
+from oemof.eesyplan import export_results, import_results
 from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_dp
 from oemof.eesyplan.model import optimise
+
+import oemof.eesyplan.postprocessing.graphs as eesyplan_graphs
 
 
 SIMULATION_VERSION = os.environ.get("SIMULATION_VERSION", "no_version")
@@ -48,7 +50,10 @@ def __run_simulation(
                 export_results(results, path=results_path)
                 json_export = datapackage.export_dp_to_json(results_path)
                 simulation_output["raw_results"] = json.loads(json_export)
-                # imported_results = import_results(path=results_path, es=es)
+
+                imported_results = import_results(path=results_path, es=es)
+                fig, links_df = eesyplan_graphs.sankey(imported_results["flow"], title="Test Sankey")
+                simulation_output["figures"] = {"sankey": fig.to_dict()}
 
         except Exception as e:
             logger.error(
