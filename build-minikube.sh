@@ -8,8 +8,9 @@
 #   cp .env.example .env
 #   chmod 600 .env
 #
-# Populate .env with the privately supplied OIDC_CLIENT_ID and
-# OIDC_CLIENT_SECRET. Choose a local DB_PASSWORD and generate SESSION_SECRET
+# For local use without OIDC credentials, set AUTH_DISABLED=true in .env.
+# Otherwise populate OIDC_CLIENT_ID and OIDC_CLIENT_SECRET (the default mode).
+# Choose a local DB_PASSWORD and generate SESSION_SECRET
 # with:
 #   openssl rand -hex 32
 #
@@ -125,9 +126,21 @@ set -a
 source "${ENV_FILE}"
 set +a
 
-for variable_name in DB_PASSWORD OIDC_CLIENT_ID OIDC_CLIENT_SECRET SESSION_SECRET; do
+AUTH_DISABLED="${AUTH_DISABLED:-false}"
+case "${AUTH_DISABLED}" in
+    true|false) ;;
+    *) fail "AUTH_DISABLED must be true or false" ;;
+esac
+
+for variable_name in DB_PASSWORD SESSION_SECRET; do
     require_value "${variable_name}"
 done
+if [[ "${AUTH_DISABLED}" == "false" ]]; then
+    require_value OIDC_CLIENT_ID
+    require_value OIDC_CLIENT_SECRET
+else
+    log "Local login enabled: all visitors share one development account. Keep access local."
+fi
 
 if [[ "$(minikube -p "${PROFILE}" status --format='{{.Host}}' 2>/dev/null || true)" != "Running" ]]; then
     fail "Minikube profile '${PROFILE}' is not running. Start it before running this script"
@@ -177,8 +190,8 @@ chmod 700 "${TEMP_DIR}"
 } > "${TEMP_DIR}/postgres.env"
 
 {
-    printf 'OIDC_CLIENT_ID=%s\n' "${OIDC_CLIENT_ID}"
-    printf 'OIDC_CLIENT_SECRET=%s\n' "${OIDC_CLIENT_SECRET}"
+    printf 'OIDC_CLIENT_ID=%s\n' "${OIDC_CLIENT_ID:-}"
+    printf 'OIDC_CLIENT_SECRET=%s\n' "${OIDC_CLIENT_SECRET:-}"
     printf 'SESSION_SECRET=%s\n' "${SESSION_SECRET}"
     printf 'DATABASE_URL=postgresql://simserver:%s@postgres.simservice.svc.cluster.local:5432/simserver\n' \
         "${encoded_db_password}"
@@ -199,6 +212,7 @@ TEMP_DIR=""
 
 log "Applying the full Minikube stack"
 kubectl apply -f "${MANIFEST}"
+kubectl -n "${NAMESPACE}" set env deployment/web AUTH_DISABLED="${AUTH_DISABLED}"
 
 log "Migrating task framework metadata"
 migration_job="$(kubectl create -f "${ROOT_DIR}/simservice/k8s/task-framework-migration.yaml" -o name)"
