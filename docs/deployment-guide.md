@@ -32,13 +32,14 @@ openssl rand -hex 32
 
 Edit `.env` locally:
 
-- `OIDC_CLIENT_ID` and `OIDC_CLIENT_SECRET`: values supplied privately.
+- `AUTH_DISABLED=true`: local login without OIDC, using a shared development account.
+- `OIDC_CLIENT_ID` and `OIDC_CLIENT_SECRET`: may be blank in local mode
 - `DB_PASSWORD`: choose a local database password.
 - `SESSION_SECRET`: use the generated random value.
 
 Quote shell-special characters. Never commit `.env`. On an existing machine,
-keep the existing file and database password. The script still requires OIDC
-credentials even when using the temporary local-login bypass.
+keep the existing file and database password. OIDC is enabled by default; use the
+local-login bypass only on a trusted local machine, never a public deployment.
 
 ## 3. Create Local Certificates
 
@@ -76,8 +77,8 @@ bash build-minikube.sh
 ```
 
 This builds the frontend, backend, DaceDSX worker, wrappers, and Mosaik worker.
-The Mosaik GUI and Orbit use prebuilt registry images. The first SUMO build can
-take a long time.
+The Mosaik editor and Orbit use prebuilt registry images. The first SUMO build
+can take a long time.
 
 Check startup before opening the app:
 
