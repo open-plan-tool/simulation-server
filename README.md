@@ -134,4 +134,11 @@ trusted local machine; do not expose the scenario editor publicly.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the GNU Affero General Public License v3.0
+(AGPL-3.0) — see the [LICENSE](LICENSE) file for details.
+
+It started as a fork of
+[open-plan-tool/simulation-server](https://github.com/open-plan-tool/simulation-server),
+developed by the [Reiner Lemoine Institut](https://reiner-lemoine-institut.de/en/)
+in the scope of the open_plan project, and has since been substantially
+rewritten and extended.
