@@ -12,6 +12,7 @@ RUN pip install -r /tmp/requirements.txt
 # install oemof-eesyplan version from the ENV variable
 #RUN pip install "oemof-eesyplan==$SIMULATION_VERSION" gunicorn
 RUN pip install gunicorn
+RUN echo "Just to trigger below"
 RUN pip install "git+https://github.com/oemof/oemof-eesyplan.git@fix/openplan_simulation"
 RUN pip install "oemof-datapackage @ git+https://github.com/oemof/oemof-datapackage.git@fix/openplan-to-eesyplan-parsing"
 
