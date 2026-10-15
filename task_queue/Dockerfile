@@ -9,11 +9,9 @@ COPY task_queue/requirements.txt /tmp/
 
 RUN python -m pip install --upgrade pip
 RUN pip install -r /tmp/requirements.txt
-# install oemof-eesyplan version from the ENV variable
-#RUN pip install "oemof-eesyplan==$SIMULATION_VERSION" gunicorn
-RUN pip install "git+https://github.com/oemof/oemof-eesyplan.git@main" --no-cache-dir
+RUN pip install "git+https://github.com/oemof/oemof-eesyplan.git@op0.0.1" --no-cache-dir
 RUN pip install gunicorn
-RUN pip install "oemof-datapackage @ git+https://github.com/oemof/oemof-datapackage.git@fix/multilevel-columns-resources"
+RUN pip install "git+https://github.com/oemof/oemof-datapackage.git@op0.0.1"
 
 
 run echo $(pip freeze)
