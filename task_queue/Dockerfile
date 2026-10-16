@@ -1,5 +1,7 @@
 FROM python:3.12-slim
 
+ARG CACHE_BUST=1
+
 RUN apt-get update && \
     apt-get install -y git && \
     apt-get install coinor-cbc -y && \
@@ -11,10 +13,10 @@ RUN python -m pip install --upgrade pip
 RUN pip install -r /tmp/requirements.txt
 # install oemof-eesyplan version from the ENV variable
 #RUN pip install "oemof-eesyplan==$SIMULATION_VERSION" gunicorn
+RUN pip install "git+https://github.com/oemof/oemof-eesyplan.git@op0.0.2" --no-cache-dir
 RUN pip install gunicorn
-RUN echo "Trigger below"
-RUN pip install "git+https://github.com/oemof/oemof-eesyplan.git@fix/openplan_simulation"
-RUN pip install "oemof-datapackage @ git+https://github.com/oemof/oemof-datapackage.git@fix/openplan-to-eesyplan-parsing"
+RUN pip install "oemof-datapackage @ git+https://github.com/oemof/oemof-datapackage.git@op0.0.2"
+RUN pip install "git+https://github.com/oemof/oemof-solph@a4611edb8a225ee6faa360f86afc49d2986c1105"
 
 
 run echo $(pip freeze)
