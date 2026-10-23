@@ -1,6 +1,6 @@
 FROM python:3.12-slim
 
-ARG CACHE_BUST=1
+ARG CACHE_BUST=2
 
 RUN apt-get update && \
     apt-get install -y git && \
