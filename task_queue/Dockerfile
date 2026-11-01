@@ -13,9 +13,9 @@ RUN python -m pip install --upgrade pip
 RUN pip install -r /tmp/requirements.txt
 # install oemof-eesyplan version from the ENV variable
 #RUN pip install "oemof-eesyplan==$SIMULATION_VERSION" gunicorn
-RUN pip install "git+https://github.com/oemof/oemof-eesyplan.git@op0.0.3" --no-cache-dir
+RUN pip install "git+https://github.com/oemof/oemof-eesyplan.git@op1.3.0" --no-cache-dir
 RUN pip install gunicorn
-#RUN pip install "oemof-datapackage @ git+https://github.com/oemof/oemof-datapackage.git@op0.0.2"
+RUN pip install "oemof-datapackage @ git+https://github.com/oemof/oemof-datapackage.git@op1.3.0"
 #RUN pip install "git+https://github.com/oemof/oemof-solph@a4611edb8a225ee6faa360f86afc49d2986c1105"
 
 
