@@ -1,6 +1,6 @@
 FROM python:3.12-slim
 
-ARG CACHE_BUST=2
+ARG CACHE_BUST=1
 
 RUN apt-get update && \
     apt-get install -y git && \
@@ -11,8 +11,9 @@ COPY task_queue/requirements.txt /tmp/
 
 RUN python -m pip install --upgrade pip
 RUN pip install -r /tmp/requirements.txt
-RUN pip install "git+https://github.com/oemof/oemof-eesyplan.git@op2.0.0rc1" --no-cache-dir
+RUN pip install "git+https://github.com/oemof/oemof-eesyplan.git@feature/add-figures-in-dashboard" --no-cache-dir
 RUN pip install gunicorn
+#RUN pip install "git+https://github.com/oemof/oemof-datapackage.git@dev"
 
 
 run echo $(pip freeze)
