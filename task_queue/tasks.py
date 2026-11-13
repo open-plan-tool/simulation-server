@@ -12,6 +12,7 @@ from oemof.datapackage import datapackage  # noqa
 from oemof.datapackage import __version__ as dp_version
 
 from oemof.eesyplan import export_results
+from oemof.eesyplan.datapackage.energy_system import get_component_type_mapping_from_dp
 from oemof.eesyplan.datapackage.energy_system import create_energy_system_from_dp
 from oemof.eesyplan.model import optimise
 
@@ -44,7 +45,11 @@ def __run_simulation(simulation_input):
             with tempfile.TemporaryDirectory(prefix="dp_results_") as tres:
                 results_path = Path(tres)
 
-                export_results(results, path=results_path)
+                export_results(
+                    results,
+                    path=results_path,
+                    component_type_mapping=get_component_type_mapping_from_dp(dp_path),
+                )
                 json_export = datapackage.export_dp_to_json(results_path)
                 simulation_output["raw_results"] = json.loads(json_export)
                 # imported_results = import_results(path=results_path, es=es)
