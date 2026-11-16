@@ -3,6 +3,7 @@ import os
 import time
 import traceback
 import json
+from importlib.metadata import distribution, version
 from celery import Celery
 from celery.utils.log import get_task_logger
 import tempfile
@@ -18,6 +19,36 @@ from oemof.eesyplan.model import optimise
 
 
 SIMULATION_VERSION = os.environ.get("SIMULATION_VERSION", "no_version")
+
+
+def package_version(package):
+    dist = distribution(package)
+
+    result = version(package)
+
+    direct_url = dist.read_text("direct_url.json")
+
+    if not direct_url:
+        return result
+
+    info = json.loads(direct_url)
+    vcs_info = info.get("vcs_info", {})
+
+    revision = vcs_info.get("requested_revision")
+    commit = vcs_info.get("commit_id")
+
+    if revision:
+        return f"{result} ({revision})"
+
+    if commit:
+        return f"{result} ({commit[:8]})"
+
+    return result
+
+
+packaged_version = package_version("oemof.eesyplan")
+if packaged_version != version("oemof.eesyplan"):
+    SIMULATION_VERSION = packaged_version
 
 logger = get_task_logger(__name__)
 CELERY_BROKER_URL = (os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379"),)
