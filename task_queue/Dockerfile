@@ -11,7 +11,7 @@ COPY task_queue/requirements.txt /tmp/
 
 RUN python -m pip install --upgrade pip
 RUN pip install -r /tmp/requirements.txt
-RUN pip install "git+https://github.com/oemof/oemof-eesyplan.git@op2.0.0rc2" --no-cache-dir
+RUN pip install "git+https://github.com/oemof/oemof-eesyplan.git@op2.0.0rc3" --no-cache-dir
 RUN pip install gunicorn
 
 
