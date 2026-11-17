@@ -38,11 +38,14 @@ def package_version(package):
     commit = vcs_info.get("commit_id")
 
     if revision:
-        return f"{result} ({revision})"
+        result = f"{revision}"
 
     if commit:
-        return f"{result} ({commit[:8]})"
+        result = f"{commit[:12]}"
 
+    if result:
+        if len(result) > 15:
+            result = result[:14]
     return result
 
 
